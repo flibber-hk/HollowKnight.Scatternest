@@ -32,6 +32,8 @@ namespace Scatternest
         {
             Log("Initializing Mod...");
 
+            DebugInterop.Hook();
+
             RequestBuilder.OnSelectStart.Subscribe(float.MinValue, StartSelector.Instance.SelectStarts);
             RandoController.OnCalculateHash += ModifyHash;
             RandoController.OnExportCompleted += AddDeployers;

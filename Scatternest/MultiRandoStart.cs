@@ -21,7 +21,10 @@ namespace Scatternest
 
         public override ItemChanger.StartDef ToItemChangerStartDef()
         {
-            return new MultiItemchangerStart(InnerDefs.Select(def => def.ToItemChangerStartDef()).ToList());
+            return new MultiItemchangerStart(InnerDefs.Select(def => def.ToItemChangerStartDef()).ToList())
+            {
+                InnerStartNames = InnerDefs.Select(def => def.Name).ToList()
+            };
         }
     }
 }

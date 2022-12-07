@@ -21,6 +21,9 @@ namespace Scatternest
 
         [JsonProperty] private int _index;
         public List<StartDef> InnerDefs;
+        public List<string> InnerStartNames { get; init; }
+
+        public string Name => InnerStartNames[Index];
 
         private StartDef ActiveStart => InnerDefs[_index];
 
