@@ -21,7 +21,7 @@ namespace Scatternest
 
         public override ItemChanger.StartDef ToItemChangerStartDef()
         {
-            throw new NotImplementedException();
+            return new MultiItemchangerStart(InnerDefs.Select(def => def.ToItemChangerStartDef()).ToList());
         }
     }
 }
