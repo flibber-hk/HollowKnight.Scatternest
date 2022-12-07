@@ -1,7 +1,11 @@
 using ItemChanger;
 using Modding;
+using RandomizerCore.Extensions;
 using RandomizerMod.IC;
 using RandomizerMod.RC;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using SD = ItemChanger.Util.SceneDataUtil;
 
 namespace Scatternest
@@ -29,12 +33,20 @@ namespace Scatternest
             Log("Initializing Mod...");
 
             RequestBuilder.OnSelectStart.Subscribe(float.MinValue, StartSelector.Instance.SelectStarts);
+            RandoController.OnCalculateHash += ModifyHash;
             RandoController.OnExportCompleted += AddDeployers;
 
             if (ModHooks.GetMod("ItemSyncMod") is not null)
             {
                 HookItemSync();
             }
+        }
+
+        private int ModifyHash(RandoController rc, int value)
+        {
+            if (!GS.Enabled || GS.StartCount < 2) return 0;
+
+            return rc.gs.StartLocationSettings.StartLocation.GetStableHashCode();
         }
 
         private void AddDeployers(RandoController rc)
@@ -63,7 +75,30 @@ namespace Scatternest
 
         public void HookItemSync()
         {
-            throw new System.NotImplementedException();
+            RandoController.OnExportCompleted += SelectStartIndex;
+        }
+
+        private void SelectStartIndex(RandoController rc)
+        {
+            if (!GS.Enabled || GS.StartCount <= 2) return;
+            if (!ItemSyncMod.ItemSyncMod.ISSettings.IsItemSync) return;
+
+            // Select a consistent ordering of the players
+
+            List<int> indices = Enumerable.Range(0, ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames().Length)
+                .Select(x => x % GS.StartCount)
+                .ToList();
+
+            Random rng = new(rc.gs.Seed + 163);
+            rng.PermuteInPlace(indices);
+
+            int playerIndex = indices[ItemSyncMod.ItemSyncMod.ISSettings.MWPlayerId];
+
+            if (MultiItemchangerStart.Instance is MultiItemchangerStart start)
+            {
+                start.Index = playerIndex;
+                start.PrimaryIndex = playerIndex;
+            }
         }
     }
 }

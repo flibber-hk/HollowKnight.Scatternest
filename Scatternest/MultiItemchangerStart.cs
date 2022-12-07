@@ -6,6 +6,19 @@ namespace Scatternest
 {
     internal class MultiItemchangerStart : StartDef
     {
+        public static MultiItemchangerStart Instance
+        {
+            get
+            {
+                if (ItemChanger.Internal.Ref.Settings.Start is MultiItemchangerStart start)
+                {
+                    return start;
+                }
+                return null;
+            }
+            
+        }
+
         [JsonProperty] private int _index;
         public List<StartDef> InnerDefs;
 
@@ -17,9 +30,17 @@ namespace Scatternest
             set
             {
                 _index = value;
-                ApplyToPlayerData(PlayerData.instance);
+                if (PlayerData.instance != null)
+                {
+                    ApplyToPlayerData(PlayerData.instance);
+                }
             }
         }
+
+        public int PrimaryIndex { get; internal set; }
+
+        public void CycleIndex() => Index = (Index + 1) % InnerDefs.Count;
+        public void ResetIndex() => Index = PrimaryIndex;
 
         public MultiItemchangerStart(List<StartDef> innerDefs) : this(innerDefs, 0) { }
 
