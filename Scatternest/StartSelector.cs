@@ -48,8 +48,8 @@ namespace Scatternest
 
             def = new MultiRandoStart(collectedStartDefs);
 
-            string startString = string.Join(", ", collectedStartDefs.Select(x => x.Name).ToArray());
-            gs.StartLocationSettings.StartLocation = $"MultiStart<{startString}>";
+            string startString = string.Join("|", collectedStartDefs.Select(x => x.Name).ToArray());
+            gs.StartLocationSettings.StartLocation = $"MultiStart<|{startString}|>";
 
             return true;
         }
