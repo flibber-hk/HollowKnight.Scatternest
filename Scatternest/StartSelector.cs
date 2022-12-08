@@ -1,12 +1,13 @@
 ﻿using Modding;
 using RandomizerMod;
+using RandomizerMod.Menu;
 using RandomizerMod.RandomizerData;
 using RandomizerMod.RC;
 using RandomizerMod.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static RandomizerMod.RC.RequestBuilder;
+using StartResolver = RandomizerMod.RC.RequestBuilder.StartResolver;
 
 namespace Scatternest
 {
@@ -14,6 +15,11 @@ namespace Scatternest
     {
         private static StartSelector _instance;
         public static StartSelector Instance => _instance ??= new();
+
+        public void Hook()
+        {
+            RequestBuilder.OnSelectStart.Subscribe(float.MinValue, SelectStarts);
+        }
 
         public bool SelectStarts(Random rng, GenerationSettings gs, SettingsPM pm, out StartDef def)
         {
@@ -25,8 +31,37 @@ namespace Scatternest
 
             List<StartDef> collectedStartDefs = new();
 
+            void RemoveSelectedStarts(Dictionary<string, StartDef> startDefs)
+            {
+                foreach (string startName in collectedStartDefs.Select(x => x.Name).ToList())
+                {
+                    if (collectedStartDefs.Contains(startDefs[startName]))
+                    {
+                        startDefs.Remove(startName);
+                    }
+                }
+            }
+
+
+            RandomizerMenuAPI.OnGenerateStartLocationDict += RemoveSelectedStarts;
+            // Try-Finally just to be safe
+            try
+            {
+                def = SelectStartsInternal(rng, gs, pm, collectedStartDefs);
+            }
+            finally
+            {
+                RandomizerMenuAPI.OnGenerateStartLocationDict -= RemoveSelectedStarts;
+            }
+
+            return true;
+        }
+
+        private StartDef SelectStartsInternal(Random rng, GenerationSettings gs, SettingsPM pm, List<StartDef> collectedStartDefs)
+        {
+            StartDef def;
             var owner = ReflectionHelper.GetField<PriorityEvent<StartResolver>.IPriorityEventOwner>(
-                typeof(RequestBuilder), "_onSelectStartOwner");
+                            typeof(RequestBuilder), "_onSelectStartOwner");
 
             List<StartResolver> resolvers = owner.GetSubscribers().Where(r => !ReferenceEquals(r.Target, this)).ToList();
 
@@ -46,12 +81,11 @@ namespace Scatternest
                 }
             }
 
-            def = new MultiRandoStart(collectedStartDefs);
+            def = new MultiRandoStart(collectedStartDefs.ToList());
 
             string startString = string.Join("|", collectedStartDefs.Select(x => x.Name).ToArray());
             gs.StartLocationSettings.StartLocation = $"MultiStart<|{startString}|>";
-
-            return true;
+            return def;
         }
 
         private StartDef SelectSingleStart(List<StartResolver> resolvers, Random rng, GenerationSettings gs, SettingsPM pm)
