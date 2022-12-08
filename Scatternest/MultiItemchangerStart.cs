@@ -47,7 +47,7 @@ namespace Scatternest
 
         public MultiItemchangerStart(List<StartDef> innerDefs) : this(innerDefs, 0) { }
 
-        public MultiItemchangerStart(List<StartDef> innerDefs, int index)
+        [JsonConstructor] public MultiItemchangerStart(List<StartDef> innerDefs, int index)
         {
             _index = index;
             InnerDefs = innerDefs;
