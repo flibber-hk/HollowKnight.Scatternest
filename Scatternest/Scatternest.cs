@@ -2,9 +2,11 @@ using ItemChanger;
 using Modding;
 using RandomizerCore.Extensions;
 using RandomizerMod.IC;
+using RandomizerMod.Logging;
 using RandomizerMod.RC;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using SD = ItemChanger.Util.SceneDataUtil;
 
@@ -37,10 +39,28 @@ namespace Scatternest
             RequestBuilder.OnSelectStart.Subscribe(float.MinValue, StartSelector.Instance.SelectStarts);
             RandoController.OnCalculateHash += ModifyHash;
             RandoController.OnExportCompleted += AddDeployers;
+            SettingsLog.AfterLogSettings += LogScatternestSettings;
+            RandoMenuPage.Hook();
 
-            if (ModHooks.GetMod("ItemSyncMod") is not null)
+            if (ItemSyncUtil.ItemSyncInstalled())
             {
                 HookItemSync();
+            }
+        }
+
+        private void LogScatternestSettings(LogArguments args, TextWriter tw)
+        {
+            if (!GS.Enabled)
+            {
+                tw.WriteLine("Scatternest settings: Disabled");
+                return;
+            }
+            tw.WriteLine($"Scatternest settings: {GS.StartCount} starts selected");
+            string[] starts = args.gs.StartLocationSettings.StartLocation.Split('|');
+
+            for (int i = 1; i < starts.Length - 1; i++)
+            {
+                tw.WriteLine($"- {starts[i]}");
             }
         }
 
@@ -83,18 +103,18 @@ namespace Scatternest
         private void SelectStartIndex(RandoController rc)
         {
             if (!GS.Enabled || GS.StartCount <= 2) return;
-            if (!ItemSyncMod.ItemSyncMod.ISSettings.IsItemSync) return;
+            if (!ItemSyncUtil.IsItemSync()) return;
 
             // Select a consistent ordering of the players
 
-            List<int> indices = Enumerable.Range(0, ItemSyncMod.ItemSyncMod.ISSettings.GetNicknames().Length)
+            List<int> indices = Enumerable.Range(0, ItemSyncUtil.PlayerCount())
                 .Select(x => x % GS.StartCount)
                 .ToList();
 
             Random rng = new(rc.gs.Seed + 163);
             rng.PermuteInPlace(indices);
 
-            int playerIndex = indices[ItemSyncMod.ItemSyncMod.ISSettings.MWPlayerId];
+            int playerIndex = indices[ItemSyncUtil.PlayerID()];
 
             if (MultiItemchangerStart.Instance is MultiItemchangerStart start)
             {
