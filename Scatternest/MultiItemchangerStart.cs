@@ -23,7 +23,7 @@ namespace Scatternest
         public List<StartDef> InnerDefs;
         public List<string> InnerStartNames { get; init; }
 
-        public string Name => InnerStartNames[Index];
+        [JsonIgnore] public string Name => InnerStartNames[Index];
 
         private StartDef ActiveStart => InnerDefs[_index];
 
@@ -40,7 +40,7 @@ namespace Scatternest
             }
         }
 
-        public int PrimaryIndex { get; internal set; }
+        [JsonProperty] public int PrimaryIndex { get; internal set; }
 
         public void CycleIndex() => Index = (Index + 1) % InnerDefs.Count;
         public void ResetIndex() => Index = PrimaryIndex;
