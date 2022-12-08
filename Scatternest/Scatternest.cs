@@ -46,6 +46,11 @@ namespace Scatternest
             {
                 HookItemSync();
             }
+
+            if (ModHooks.GetMod("RandoSettingsManager") is not null)
+            {
+                RandoSettingsManagerInterop.Hook();
+            }
         }
 
         private void LogScatternestSettings(LogArguments args, TextWriter tw)
