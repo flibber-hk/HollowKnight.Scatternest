@@ -1,5 +1,4 @@
 ﻿using Modding;
-using RandomizerMod;
 using RandomizerMod.Menu;
 using RandomizerMod.RandomizerData;
 using RandomizerMod.RC;
@@ -8,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using StartResolver = RandomizerMod.RC.RequestBuilder.StartResolver;
+using SROwner = RandomizerMod.PriorityEvent<RandomizerMod.RC.RequestBuilder.StartResolver>.IPriorityEventOwner;
 
 namespace Scatternest
 {
@@ -60,8 +60,7 @@ namespace Scatternest
         private StartDef SelectStartsInternal(Random rng, GenerationSettings gs, SettingsPM pm, List<StartDef> collectedStartDefs)
         {
             StartDef def;
-            var owner = ReflectionHelper.GetField<PriorityEvent<StartResolver>.IPriorityEventOwner>(
-                            typeof(RequestBuilder), "_onSelectStartOwner");
+            SROwner owner = ReflectionHelper.GetField<SROwner>(typeof(RequestBuilder), "_onSelectStartOwner");
 
             List<StartResolver> resolvers = owner.GetSubscribers().Where(r => !ReferenceEquals(r.Target, this)).ToList();
 
