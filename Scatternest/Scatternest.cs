@@ -107,7 +107,7 @@ namespace Scatternest
 
         private void SelectStartIndex(RandoController rc)
         {
-            if (!GS.Enabled || GS.StartCount <= 2) return;
+            if (!GS.Enabled || GS.StartCount < 2) return;
             if (!ItemSyncUtil.IsItemSync()) return;
 
             // Select a consistent ordering of the players
