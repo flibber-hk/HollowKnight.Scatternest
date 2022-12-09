@@ -7,6 +7,7 @@ that this number is less than the number of available starts.
 - The randomizer logic will expect that players have access to all of the selected start locations. 
 - It is possible to cycle between the available starts, and reset to the original start, using DebugMod (the start must still be
 warped to manually through Benchwarp).
+- It is possible to choose a fixed start through the normal rando menu; in that case, that start will definitely be assigned, as well as a random selection of other starts.
 - If in an ItemSync game, players will be assigned different starts, but will be able to cycle between all of them if
 necessary. For instance: 
   - In a 2 player, 2 start game, player A and B will be given starts X and Y.
