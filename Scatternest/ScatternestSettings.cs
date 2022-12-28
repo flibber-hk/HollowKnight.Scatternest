@@ -7,13 +7,13 @@ namespace Scatternest
 {
     public class ScatternestSettings
     {
-        public bool Enabled = false;
+        public bool Enabled { get; set; } = false;
 
-        public int StartCount = 2;
+        public int StartCount { get; set; } = 2;
 
         public HashSet<string> DisabledStarts { get; set; } = new();
 
-        [JsonIgnore] public StartPresetGenerator DelayedPreset = new EmptyPreset();
+        [JsonIgnore] public StartPresetGenerator DelayedPreset { get; set; } = new EmptyPreset();
         [JsonProperty] private string _delayedPresetName;
 
         [OnSerializing] private void SetPresetName(StreamingContext _) => _delayedPresetName = DelayedPreset.DisplayName;
