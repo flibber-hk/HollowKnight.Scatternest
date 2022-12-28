@@ -26,7 +26,7 @@ namespace Scatternest
         internal ToggleButton[] StartLocationButtons;
         internal IMenuPanel StartLocationPanel;
         internal MenuItem<string> ApplyPresetNow;
-        internal MenuItem<string> ApplyPresetLater;
+        internal MenuItem<string> ApplyPresetOnStart;
         internal SmallButton SelectAll;
         internal SmallButton DeselectAll;
         internal SmallButton JumpToSleButton;
@@ -59,6 +59,10 @@ namespace Scatternest
             if (JumpToSleButton != null)
             {
                 JumpToSleButton.Text.color = Scatternest.SET.AnyStartsDisabled ? Colors.TRUE_COLOR : Colors.DEFAULT_COLOR;
+            }
+            if (ApplyPresetOnStart != null)
+            {
+                ApplyPresetOnStart.Text.color = Scatternest.SET.DelayedPreset is EmptyPreset ? Colors.TRUE_COLOR : Colors.FALSE_COLOR;
             }
         }
 
@@ -119,7 +123,7 @@ namespace Scatternest
             snMEF.SetMenuValues(settings);
             Scatternest.SET.DisabledStarts.Clear();
             Scatternest.SET.DisabledStarts.UnionWith(settings.DisabledStarts);
-            ApplyPresetLater.SetValue(settings.DelayedPreset.DisplayName);
+            ApplyPresetOnStart.SetValue(settings.DelayedPreset.DisplayName);
 
             UpdateStartLocationExclusionSelector();
         }
@@ -151,9 +155,9 @@ namespace Scatternest
                     UpdateStartLocationExclusionSelector();
                 };
 
-                ApplyPresetLater = new(StartLocationExclusionPage, "Apply Preset Later", generators.Select(kvp => kvp.Key).ToArray());
-                ApplyPresetLater.SetValue(Scatternest.SET.DelayedPreset.DisplayName);
-                ApplyPresetLater.ValueChanged += s =>
+                ApplyPresetOnStart = new(StartLocationExclusionPage, "Apply Preset Later", generators.Select(kvp => kvp.Key).ToArray());
+                ApplyPresetOnStart.SetValue(Scatternest.SET.DelayedPreset.DisplayName);
+                ApplyPresetOnStart.ValueChanged += s =>
                 {
                     Scatternest.SET.DelayedPreset = generators[s];
                 };
@@ -173,7 +177,7 @@ namespace Scatternest
                 };
 
                 ApplyPresetNow.MoveTo(new(-300, 400));
-                ApplyPresetLater.MoveTo(new(-300, 350));
+                ApplyPresetOnStart.MoveTo(new(-300, 350));
                 SelectAll.MoveTo(new(400, 400));
                 DeselectAll.MoveTo(new(400, 350));
                 

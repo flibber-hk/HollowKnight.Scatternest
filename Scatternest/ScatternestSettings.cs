@@ -17,8 +17,17 @@ namespace Scatternest
         [JsonProperty] private string _delayedPresetName;
 
         [OnSerializing] private void SetPresetName(StreamingContext _) => _delayedPresetName = DelayedPreset.DisplayName;
-        [OnDeserialized] private void SetDelayedPreset(StreamingContext _) => DelayedPreset = StartPresetGenerator.CreateDict()[_delayedPresetName];
+        [OnDeserialized] private void SetDelayedPreset(StreamingContext _)
+        {
+            if (StartPresetGenerator.CreateDict().TryGetValue(_delayedPresetName, out StartPresetGenerator gen))
+            {
+                DelayedPreset = gen;
+                return;
+            }
 
+            Scatternest.instance.LogWarn($"Did not recognize {nameof(StartPresetGenerator)}: {_delayedPresetName}");
+            DelayedPreset = new EmptyPreset();
+        }
 
 
         [JsonIgnore] public bool AddedStarts => Enabled && StartCount > 1;
