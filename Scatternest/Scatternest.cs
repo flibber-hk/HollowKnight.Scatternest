@@ -74,7 +74,7 @@ namespace Scatternest
             int startLocationModifier = rc.gs.StartLocationSettings.StartLocation.GetStableHashCode();
 
             int excludedStartsModifier;
-            if (SET.DisabledStarts.Count > 0)
+            if (SET.AnyStartsDisabled)
             {
                 excludedStartsModifier = string.Join(", ", SET.DisabledStarts.OrderBy(x => x, StringComparer.InvariantCulture)).GetStableHashCode();
             }

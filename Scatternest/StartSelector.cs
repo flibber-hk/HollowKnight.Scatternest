@@ -29,6 +29,12 @@ namespace Scatternest
                 return false;
             }
 
+            if (Scatternest.SET.DelayedPreset != null)
+            {
+                HashSet<string> newExcludedStarts = Scatternest.SET.DelayedPreset.CreateExclusionList(RandomizerMenuAPI.GenerateStartLocationDict(), gs, pm, rng);
+                Scatternest.SET.DisabledStarts.UnionWith(newExcludedStarts);
+            }
+
 
             List<StartDef> collectedStartDefs = new();
 
@@ -51,6 +57,10 @@ namespace Scatternest
             {
                 def = SelectStartsInternal(rng, gs, pm, collectedStartDefs);
             }
+            catch (IndexOutOfRangeException e)
+            {
+                throw new InvalidOperationException("Not enough available starts", e);
+            }
             finally
             {
                 RandomizerMenuAPI.OnGenerateStartLocationDict -= RemoveSelectedStarts;
@@ -66,7 +76,7 @@ namespace Scatternest
             {
                 if (!startDefs.Remove(excluded))
                 {
-                    Scatternest.instance.LogWarn($"Tried to remove a non-existent start {excluded}");
+                    Scatternest.instance.Log($"Tried to remove a non-existent start {excluded}");
                 }
             }
         }
