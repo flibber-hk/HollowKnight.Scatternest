@@ -5,7 +5,6 @@ using System.Linq;
 using Scatternest.Util;
 using RandomizerCore.Extensions;
 using RandomizerMod.Settings;
-using System.ComponentModel;
 
 namespace Scatternest.ExclusionPresets
 {
@@ -28,14 +27,14 @@ namespace Scatternest.ExclusionPresets
         {
             List<StartPresetGenerator> generators = new()
             {
-                null,
+                new EmptyPreset(),
                 new ExcludeEquivalentStarts(),
                 new ExcludeSimilarStarts(),
                 new ExcludeItemRandoStarts(),
                 new ExcludeRestrictedStarts(),
             };
 
-            return generators.ToDictionary(x => x?.DisplayName ?? "None");
+            return generators.ToDictionary(x => x.DisplayName);
         }
 
         protected static HashSet<string> GetAvailableStarts(Dictionary<string, StartDef> data, GenerationSettings gs, SettingsPM pm)
@@ -45,6 +44,16 @@ namespace Scatternest.ExclusionPresets
         }
 
         public abstract HashSet<string> CreateExclusionList(Dictionary<string, StartDef> data, GenerationSettings gs, SettingsPM pm, Random rng);
+    }
+
+    public sealed class EmptyPreset : StartPresetGenerator
+    {
+        public EmptyPreset() : base() { DisplayName = "None"; }
+
+        public override HashSet<string> CreateExclusionList(Dictionary<string, StartDef> data, GenerationSettings gs, SettingsPM pm, Random rng)
+        {
+            return new();
+        }
     }
 
     public class ExcludeEquivalentStarts : StartPresetGenerator

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Scatternest.ExclusionPresets;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Scatternest
 {
@@ -12,10 +13,15 @@ namespace Scatternest
 
         public HashSet<string> DisabledStarts { get; set; } = new();
 
-        public StartPresetGenerator DelayedPreset = null;
+        [JsonIgnore] public StartPresetGenerator DelayedPreset = new EmptyPreset();
+        [JsonProperty] private string _delayedPresetName;
+
+        [OnSerializing] private void SetPresetName(StreamingContext _) => _delayedPresetName = DelayedPreset.DisplayName;
+        [OnDeserialized] private void SetDelayedPreset(StreamingContext _) => DelayedPreset = StartPresetGenerator.CreateDict()[_delayedPresetName];
+
 
 
         [JsonIgnore] public bool AddedStarts => Enabled && StartCount > 1;
-        [JsonIgnore] public bool AnyStartsDisabled => Enabled && (DisabledStarts.Count > 0 || DelayedPreset != null);
+        [JsonIgnore] public bool AnyStartsDisabled => DisabledStarts.Count > 0 || DelayedPreset is not EmptyPreset;
     }
 }

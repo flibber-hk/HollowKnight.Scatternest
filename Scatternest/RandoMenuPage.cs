@@ -119,6 +119,7 @@ namespace Scatternest
             snMEF.SetMenuValues(settings);
             Scatternest.SET.DisabledStarts.Clear();
             Scatternest.SET.DisabledStarts.UnionWith(settings.DisabledStarts);
+            ApplyPresetLater.SetValue(settings.DelayedPreset.DisplayName);
 
             UpdateStartLocationExclusionSelector();
         }
@@ -151,6 +152,7 @@ namespace Scatternest
                 };
 
                 ApplyPresetLater = new(StartLocationExclusionPage, "Apply Preset Later", generators.Select(kvp => kvp.Key).ToArray());
+                ApplyPresetLater.SetValue(Scatternest.SET.DelayedPreset.DisplayName);
                 ApplyPresetLater.ValueChanged += s =>
                 {
                     Scatternest.SET.DelayedPreset = generators[s];
@@ -172,8 +174,8 @@ namespace Scatternest
 
                 ApplyPresetNow.MoveTo(new(-300, 400));
                 ApplyPresetLater.MoveTo(new(-300, 350));
-                SelectAll.MoveTo(new(300, 400));
-                DeselectAll.MoveTo(new(300, 350));
+                SelectAll.MoveTo(new(400, 400));
+                DeselectAll.MoveTo(new(400, 350));
                 
             }
             JumpToSleButton = new(SnPage, Localize("Excluded Starts"));
