@@ -24,6 +24,8 @@ necessary. For instance:
   common in room randomizer.
   - One player might have access to a bench, and the other player might be expected to equip a charm.
 
+## Start Location Exclusion
+
 The Start Location Exclusion page allows players to exclude certain starts from randomization. Scatternest must be enabled to make use of this feature.
 
 Notes:
