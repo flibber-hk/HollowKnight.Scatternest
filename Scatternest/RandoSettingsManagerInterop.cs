@@ -12,22 +12,22 @@ namespace Scatternest
         }
     }
 
-    internal class ScatternestSettingsProxy : RandoSettingsProxy<GlobalSettings, string>
+    internal class ScatternestSettingsProxy : RandoSettingsProxy<ScatternestSettings, string>
     {
         public override string ModKey => Scatternest.instance.GetName();
 
         public override VersioningPolicy<string> VersioningPolicy { get; }
             = new EqualityVersioningPolicy<string>(Scatternest.instance.GetVersion());
 
-        public override void ReceiveSettings(GlobalSettings settings)
+        public override void ReceiveSettings(ScatternestSettings settings)
         {
             settings ??= new();
-            RandoMenuPage.Instance.snMEF.SetMenuValues(settings);
+            RandoMenuPage.Instance.Apply(settings);
         }
 
-        public override bool TryProvideSettings(out GlobalSettings settings)
+        public override bool TryProvideSettings(out ScatternestSettings settings)
         {
-            settings = Scatternest.GS;
+            settings = Scatternest.SET;
             return settings.Enabled;
         }
     }

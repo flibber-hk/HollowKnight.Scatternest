@@ -23,11 +23,12 @@ namespace Scatternest
 
         public bool SelectStarts(Random rng, GenerationSettings gs, SettingsPM pm, out StartDef def)
         {
-            if (!Scatternest.GS.Enabled || Scatternest.GS.StartCount <= 1)
+            if (!Scatternest.SET.Enabled)
             {
                 def = default;
                 return false;
             }
+
 
             List<StartDef> collectedStartDefs = new();
 
@@ -44,6 +45,7 @@ namespace Scatternest
 
 
             RandomizerMenuAPI.OnGenerateStartLocationDict += RemoveSelectedStarts;
+            RandomizerMenuAPI.OnGenerateStartLocationDict += RemoveExcludedStarts;
             // Try-Finally just to be safe
             try
             {
@@ -52,9 +54,21 @@ namespace Scatternest
             finally
             {
                 RandomizerMenuAPI.OnGenerateStartLocationDict -= RemoveSelectedStarts;
+                RandomizerMenuAPI.OnGenerateStartLocationDict -= RemoveExcludedStarts;
             }
 
             return true;
+        }
+
+        private void RemoveExcludedStarts(Dictionary<string, StartDef> startDefs)
+        {
+            foreach (string excluded in Scatternest.SET.DisabledStarts)
+            {
+                if (!startDefs.Remove(excluded))
+                {
+                    Scatternest.instance.LogWarn($"Tried to remove a non-existent start {excluded}");
+                }
+            }
         }
 
         private StartDef SelectStartsInternal(Random rng, GenerationSettings gs, SettingsPM pm, List<StartDef> collectedStartDefs)
@@ -71,7 +85,7 @@ namespace Scatternest
                 gs.StartLocationSettings.StartLocationType = StartLocationSettings.RandomizeStartLocationType.Random;
             }
 
-            while (collectedStartDefs.Count < Scatternest.GS.StartCount)
+            while (collectedStartDefs.Count < Scatternest.SET.StartCount)
             {
                 StartDef candidate = SelectSingleStart(resolvers, rng, gs, pm);
                 if (!collectedStartDefs.Contains(candidate))

@@ -12,13 +12,11 @@ using SD = ItemChanger.Util.SceneDataUtil;
 
 namespace Scatternest
 {
-    public class Scatternest : Mod, IGlobalSettings<GlobalSettings>
+    public class Scatternest : Mod
     {
         internal static Scatternest instance;
 
-        public static GlobalSettings GS = new();
-        public GlobalSettings OnSaveGlobal() => GS;
-        public void OnLoadGlobal(GlobalSettings gs) => GS = gs;
+        public static ScatternestSettings SET = new();
 
         public Scatternest() : base(null)
         {
@@ -55,12 +53,12 @@ namespace Scatternest
 
         private void LogScatternestSettings(LogArguments args, TextWriter tw)
         {
-            if (!GS.Enabled)
+            if (!SET.Enabled)
             {
                 tw.WriteLine("Scatternest settings: Disabled");
                 return;
             }
-            tw.WriteLine($"Scatternest settings: {GS.StartCount} starts selected");
+            tw.WriteLine($"Scatternest settings: {SET.StartCount} starts selected");
             string[] starts = args.gs.StartLocationSettings.StartLocation.Split('|');
 
             for (int i = 1; i < starts.Length - 1; i++)
@@ -71,14 +69,32 @@ namespace Scatternest
 
         private int ModifyHash(RandoController rc, int value)
         {
-            if (!GS.Enabled || GS.StartCount < 2) return 0;
+            if (!SET.Enabled) return 0;
 
-            return rc.gs.StartLocationSettings.StartLocation.GetStableHashCode();
+            int startLocationModifier = rc.gs.StartLocationSettings.StartLocation.GetStableHashCode();
+
+            int excludedStartsModifier;
+            if (SET.DisabledStarts.Count > 0)
+            {
+                excludedStartsModifier = string.Join(", ", SET.DisabledStarts.OrderBy(x => x, StringComparer.InvariantCulture)).GetStableHashCode();
+            }
+            else
+            {
+                excludedStartsModifier = 0;
+            }
+
+            int ret;
+            unchecked
+            {
+                ret = startLocationModifier + 163 * excludedStartsModifier;
+            }
+
+            return ret;
         }
 
         private void AddDeployers(RandoController rc)
         {
-            if (!GS.Enabled) return;
+            if (!SET.AddedStarts) return;
 
             if (rc.gs.StartLocationSettings.StartLocation.Contains("|Hive|"))
             {
@@ -107,13 +123,13 @@ namespace Scatternest
 
         private void SelectStartIndex(RandoController rc)
         {
-            if (!GS.Enabled || GS.StartCount < 2) return;
+            if (!SET.AddedStarts) return;
             if (!ItemSyncUtil.IsItemSync()) return;
 
             // Select a consistent ordering of the players
 
             List<int> indices = Enumerable.Range(0, ItemSyncUtil.PlayerCount())
-                .Select(x => x % GS.StartCount)
+                .Select(x => x % SET.StartCount)
                 .ToList();
 
             Random rng = new(rc.gs.Seed + 163);
