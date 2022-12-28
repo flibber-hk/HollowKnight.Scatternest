@@ -50,7 +50,7 @@ namespace Scatternest
             return true;
         }
 
-        private void SetTopLevelButtonColors()
+        private void SetButtonColors()
         {
             if (JumpToSnButton != null)
             {
@@ -62,7 +62,7 @@ namespace Scatternest
             }
             if (ApplyPresetOnStart != null)
             {
-                ApplyPresetOnStart.Text.color = Scatternest.SET.DelayedPreset is EmptyPreset ? Colors.TRUE_COLOR : Colors.FALSE_COLOR;
+                ApplyPresetOnStart.Text.color = Scatternest.SET.DelayedPreset is not EmptyPreset ? Colors.TRUE_COLOR : Colors.FALSE_COLOR;
             }
         }
 
@@ -85,7 +85,7 @@ namespace Scatternest
 
                 if (value) button.SetColor(Color.Lerp(Color.white, Color.red, 0.5f));
 
-                SetTopLevelButtonColors();
+                SetButtonColors();
             };
 
             return button;
@@ -116,6 +116,8 @@ namespace Scatternest
                     new(600f, 350f), 
                     StartLocationButtons);
             }
+
+            SetButtonColors();
         }
 
         internal void Apply(ScatternestSettings settings)
@@ -160,6 +162,7 @@ namespace Scatternest
                 ApplyPresetOnStart.ValueChanged += s =>
                 {
                     Scatternest.SET.DelayedPreset = generators[s];
+                    SetButtonColors();
                 };
 
                 SelectAll = new(StartLocationExclusionPage, "Disable All");
@@ -195,13 +198,13 @@ namespace Scatternest
 
             foreach (IValueElement e in snMEF.Elements)
             {
-                e.SelfChanged += obj => SetTopLevelButtonColors();
+                e.SelfChanged += obj => SetButtonColors();
             }
 
 
             JumpToSnButton = new(landingPage, Localize("Scatternest"));
             JumpToSnButton.AddHideAndShowEvent(landingPage, SnPage);
-            SetTopLevelButtonColors();
+            SetButtonColors();
         }
     }
 }
