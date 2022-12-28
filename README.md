@@ -23,3 +23,23 @@ necessary. For instance:
   B might have access to Dirtmouth. The randomizer will expect B to be able to enter the door to Bretta's hut. This type of constraint may be particularly
   common in room randomizer.
   - One player might have access to a bench, and the other player might be expected to equip a charm.
+
+The Start Location Exclusion page allows players to exclude certain starts from randomization. Scatternest must be enabled to make use of this feature.
+
+Notes:
+- Any red starts in the exclusion page will not be selected.
+- If using a fixed start in the Randomizer which has been excluded in the exclusion page, the Randomizer
+will assign King's Pass, even if that has also been excluded.
+- There are several in-built presets for starts to exclude.
+  - The Apply Preset Now selector will toggle all of the start buttons to reflect the preset.
+  - The Apply Preset On Start selector will apply the preset at the start of randomization, in addition to any already disabled starts.
+- The included presets include:
+  - Exclude Equivalent Starts - this will randomly select one start from each group of starts that provide equivalent access
+  (e.g. West/East Crossroads and Ancestral Mound) and exclude the rest.
+  - Exclude Similar Starts - this will randomly select one start from each group of starts that provide similar access 
+  (e.g. West/East Crossroads, Ancestral Mound, King's Pass and West Blue Lake) and exclude the rest.
+  - Exclude Item Rando Starts - this will exclude starts which are available with the default settings. This will cause
+  generation failure unless transitions are randomized or non-default skip or novelty settings are enabled.
+- The presets are blind to any changes made by connections. For example, Greenpath and Queen's Station will always be considered equivalent
+even if a connection which blocks access between the two is enabled.
+- Starts added by connections may or may not appear on this screen, but they will never be excluded by any of the presets.
