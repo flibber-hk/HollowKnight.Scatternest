@@ -61,25 +61,34 @@ namespace Scatternest.ExclusionPresets
         public override HashSet<string> CreateExclusionList(Dictionary<string, StartDef> data, GenerationSettings gs, SettingsPM pm, Random rng)
         {
             HashSet<string> available = GetAvailableStarts(data, gs, pm);
-
-            List<string> crossroads = new HashSet<string>()
-            {
-                StartNames.WestCrossroads,
-                StartNames.EastCrossroads,
-                StartNames.AncestralMound
-            }.Where(x => available.Contains(x)).OrderBy(x => x, StringComparer.InvariantCulture).ToList();
-
-            List<string> greenpath = new HashSet<string>()
-            {
-                StartNames.Greenpath,
-                StartNames.QueensStation,
-                StartNames.WestFogCanyon
-            }.Where(x => available.Contains(x)).OrderBy(x => x, StringComparer.InvariantCulture).ToList();
-
             HashSet<string> excluded = new();
 
+
+            List<string> crossroads = new()
+            {
+                StartNames.WestCrossroads,
+            };
+            if (gs.TransitionSettings.Mode != TransitionSettings.TransitionMode.RoomRandomizer) crossroads.Add(StartNames.EastCrossroads);
+            if (gs.TransitionSettings.Mode != TransitionSettings.TransitionMode.RoomRandomizer
+                && gs.TransitionSettings.Mode != TransitionSettings.TransitionMode.FullAreaRandomizer) crossroads.Add(StartNames.AncestralMound);
+            crossroads = crossroads.Where(x => available.Contains(x)).OrderBy(x => x, StringComparer.InvariantCulture).ToList();
+
             excluded.UnionWith(crossroads.AllButOne(rng));
+
+
+            List<string> greenpath = new()
+            {
+                StartNames.Greenpath,
+            };
+            if (gs.TransitionSettings.Mode == TransitionSettings.TransitionMode.None)
+            {
+                greenpath.Add(StartNames.QueensStation);
+                greenpath.Add(StartNames.WestFogCanyon);
+            }
+            greenpath = greenpath.Where(x => available.Contains(x)).OrderBy(x => x, StringComparer.InvariantCulture).ToList();
+
             excluded.UnionWith(greenpath.AllButOne(rng));
+
 
             return excluded;
         }
@@ -90,31 +99,51 @@ namespace Scatternest.ExclusionPresets
         public override HashSet<string> CreateExclusionList(Dictionary<string, StartDef> data, GenerationSettings gs, SettingsPM pm, Random rng)
         {
             HashSet<string> available = GetAvailableStarts(data, gs, pm);
-
-            List<string> crossroads = new HashSet<string>()
-            {
-                StartNames.WestCrossroads,
-                StartNames.EastCrossroads,
-                StartNames.AncestralMound,
-                StartNames.KingsPass,
-                StartNames.EastBlueLake
-            }.Where(x => available.Contains(x)).OrderBy(x => x, StringComparer.InvariantCulture).ToList();
-
-            List<string> greenpath = new HashSet<string>()
-            {
-                StartNames.Greenpath,
-                StartNames.QueensStation,
-                StartNames.WestFogCanyon,
-                StartNames.EastFogCanyon,
-                StartNames.LowerGreenpath
-            }.Where(x => available.Contains(x)).OrderBy(x => x, StringComparer.InvariantCulture).ToList();
-
             HashSet<string> excluded = new();
 
+            List<string> crossroads = new()
+            {
+                StartNames.WestCrossroads
+            };
+            if (gs.TransitionSettings.Mode != TransitionSettings.TransitionMode.RoomRandomizer)
+            {
+                crossroads.Add(StartNames.EastCrossroads);
+            }
+            if (gs.TransitionSettings.Mode != TransitionSettings.TransitionMode.RoomRandomizer
+                && gs.TransitionSettings.Mode != TransitionSettings.TransitionMode.FullAreaRandomizer)
+            {
+                crossroads.Add(StartNames.AncestralMound);
+            }
+            if (gs.TransitionSettings.Mode == TransitionSettings.TransitionMode.None)
+            {
+                crossroads.Add(StartNames.KingsPass);
+                crossroads.Add(StartNames.WestBlueLake);
+            }
+            crossroads = crossroads.Where(x => available.Contains(x)).OrderBy(x => x, StringComparer.InvariantCulture).ToList();
+
             excluded.UnionWith(crossroads.AllButOne(rng));
+
+
+            List<string> greenpath = new()
+            {
+                StartNames.Greenpath,
+            };
+            if (gs.TransitionSettings.Mode == TransitionSettings.TransitionMode.None)
+            {
+                greenpath.Add(StartNames.QueensStation);
+                greenpath.Add(StartNames.WestFogCanyon);
+                greenpath.Add(StartNames.EastFogCanyon);
+            }
+            if (gs.TransitionSettings.Mode != TransitionSettings.TransitionMode.RoomRandomizer)
+            {
+                greenpath.Add(StartNames.LowerGreenpath);
+            }
+            greenpath = greenpath.Where(x => available.Contains(x)).OrderBy(x => x, StringComparer.InvariantCulture).ToList();
+
             excluded.UnionWith(greenpath.AllButOne(rng));
 
-            if (gs.NoveltySettings.RandomizeElevatorPass)
+
+            if (gs.NoveltySettings.RandomizeElevatorPass && gs.TransitionSettings.Mode == TransitionSettings.TransitionMode.None)
             {
                 // East Blue Lake and CMound are similar
                 List<string> rg = new HashSet<string>()
