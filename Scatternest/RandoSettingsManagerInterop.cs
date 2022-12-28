@@ -21,7 +21,6 @@ namespace Scatternest
 
         public override void ReceiveSettings(ScatternestSettings settings)
         {
-            settings ??= new();
             RandoMenuPage.Instance.Apply(settings);
         }
 

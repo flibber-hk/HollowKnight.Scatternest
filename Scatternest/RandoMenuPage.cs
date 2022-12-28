@@ -122,6 +122,12 @@ namespace Scatternest
 
         internal void Apply(ScatternestSettings settings)
         {
+            if (settings is null)
+            {
+                snMEF.ElementLookup[nameof(ScatternestSettings.Enabled)].SetValue(false);
+                return;
+            }
+
             snMEF.SetMenuValues(settings);
             Scatternest.SET.DisabledStarts.Clear();
             Scatternest.SET.DisabledStarts.UnionWith(settings.DisabledStarts);
