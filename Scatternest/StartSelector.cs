@@ -31,7 +31,10 @@ namespace Scatternest
 
             if (Scatternest.SET.DelayedPreset != null)
             {
-                HashSet<string> newExcludedStarts = Scatternest.SET.DelayedPreset.CreateExclusionList(RandomizerMenuAPI.GenerateStartLocationDict(), gs, pm, rng);
+                Dictionary<string, StartDef> startDict = RandomizerMenuAPI.GenerateStartLocationDict()
+                    .Where(kvp => !Scatternest.SET.DisabledStarts.Contains(kvp.Key))
+                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                HashSet<string> newExcludedStarts = Scatternest.SET.DelayedPreset.CreateExclusionList(startDict, gs, pm, rng);
                 Scatternest.SET.DisabledStarts.UnionWith(newExcludedStarts);
             }
 
