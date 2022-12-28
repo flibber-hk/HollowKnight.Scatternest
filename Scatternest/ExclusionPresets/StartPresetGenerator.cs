@@ -114,6 +114,18 @@ namespace Scatternest.ExclusionPresets
             excluded.UnionWith(crossroads.AllButOne(rng));
             excluded.UnionWith(greenpath.AllButOne(rng));
 
+            if (gs.NoveltySettings.RandomizeElevatorPass)
+            {
+                // East Blue Lake and CMound are similar
+                List<string> rg = new HashSet<string>()
+                {
+                    StartNames.EastBlueLake,
+                    StartNames.CrystallizedMound,
+                }.Where(x => available.Contains(x)).OrderBy(x => x, StringComparer.InvariantCulture).ToList();
+
+                excluded.UnionWith(rg.AllButOne(rng));
+            }
+
             return excluded;
         }
     }
