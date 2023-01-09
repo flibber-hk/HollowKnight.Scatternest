@@ -1,9 +1,11 @@
 using ItemChanger;
 using Modding;
 using RandomizerCore.Extensions;
+using RandomizerCore.Logic;
 using RandomizerMod.IC;
 using RandomizerMod.Logging;
 using RandomizerMod.RC;
+using RandomizerMod.Settings;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -35,6 +37,7 @@ namespace Scatternest
             DebugInterop.Hook();
             StartSelector.Instance.Hook();
 
+            RCData.RuntimeLogicOverride.Subscribe(0f, AddResolver);
             RandoController.OnCalculateHash += ModifyHash;
             RandoController.OnExportCompleted += AddDeployers;
             SettingsLog.AfterLogSettings += LogScatternestSettings;
@@ -49,6 +52,15 @@ namespace Scatternest
             {
                 RandoSettingsManagerInterop.Hook();
             }
+        }
+
+        private void AddResolver(GenerationSettings gs, LogicManagerBuilder lmb)
+        {
+            if (!SET.Enabled) return;
+
+            VariableResolver inner = lmb.VariableResolver;
+
+            lmb.VariableResolver = new ScatternestVariableResolver() { Inner = inner };
         }
 
         private void LogScatternestSettings(LogArguments args, TextWriter tw)
