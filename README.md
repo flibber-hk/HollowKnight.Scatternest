@@ -23,6 +23,9 @@ necessary. For instance:
   B might have access to Dirtmouth. The randomizer will expect B to be able to enter the door to Bretta's hut. This type of constraint may be particularly
   common in room randomizer.
   - One player might have access to a bench, and the other player might be expected to equip a charm.
+- By default, Scatternest will not remember the settings (i.e. the state of the menu) between play sessions. This behaviour can be changed
+by toggling the Remember Settings button on the connection menu screen (the state of this button will be remembered between play sessions).
+
 
 ## Start Location Exclusion
 

@@ -31,6 +31,8 @@ namespace Scatternest
         internal SmallButton DeselectAll;
         internal SmallButton JumpToSleButton;
 
+        internal ToggleButton GlobalSettingsToggle;
+
         internal static RandoMenuPage Instance { get; private set; }
 
         public static void OnExitMenu()
@@ -139,7 +141,7 @@ namespace Scatternest
         private RandoMenuPage(MenuPage landingPage)
         {
             // Clear settings when constructing the menu
-            Scatternest.SET = new();
+            Scatternest.ResetMenuSettings();
 
             SnPage = new MenuPage(Localize("Scatternest"), landingPage);
 
@@ -199,6 +201,18 @@ namespace Scatternest
             snMEF = new(SnPage, Scatternest.SET);
             snVIP = new(SnPage, new(0, 300), 75f, true, snMEF.Elements);
             snVIP.Add(JumpToSleButton);
+
+
+            // Create the GS toggle button above the back button
+            {
+                Vector2 back = SnPage.backButton.GameObject.transform.localPosition;
+                Vector2 gsTogglePos = back + SpaceParameters.VSPACE_MEDIUM * Vector2.up;
+                GlobalSettingsToggle = new(SnPage, Localize("Remember Settings"));
+                GlobalSettingsToggle.SetValue(Scatternest.GS.RememberScatternestSettings);
+                GlobalSettingsToggle.ValueChanged += b => Scatternest.GS.RememberScatternestSettings = b;
+                GlobalSettingsToggle.MoveTo(gsTogglePos);
+            }
+
             SnPage.ResetNavigation();
             Localize(snMEF);
 

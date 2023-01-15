@@ -14,11 +14,23 @@ using SD = ItemChanger.Util.SceneDataUtil;
 
 namespace Scatternest
 {
-    public class Scatternest : Mod
+    public class Scatternest : Mod, IGlobalSettings<GlobalSettings>
     {
         internal static Scatternest instance;
 
-        public static ScatternestSettings SET = new();
+        public static ScatternestSettings SET => GS.MenuSettings;
+
+        public static GlobalSettings GS { get; private set; } = new();
+        GlobalSettings IGlobalSettings<GlobalSettings>.OnSaveGlobal() => GS;
+        void IGlobalSettings<GlobalSettings>.OnLoadGlobal(GlobalSettings gs) => GS = gs;
+
+        public static void ResetMenuSettings()
+        {
+            if (!GS.RememberScatternestSettings)
+            {
+                GS.MenuSettings = new();
+            }
+        }
 
         public Scatternest() : base(null)
         {
