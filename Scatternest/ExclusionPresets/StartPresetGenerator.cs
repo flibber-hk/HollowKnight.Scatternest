@@ -143,6 +143,18 @@ namespace Scatternest.ExclusionPresets
             excluded.UnionWith(greenpath.AllButOne(rng));
 
 
+            List<string> kings = new()
+            {
+                StartNames.KingsStation
+            };
+            if (gs.TransitionSettings.Mode == TransitionSettings.TransitionMode.None)
+            {
+                kings.Add(StartNames.OutsideColosseum);
+            }
+            kings = kings.Where(x => available.Contains(x)).OrderBy(x => x, StringComparer.InvariantCulture).ToList();
+
+            excluded.UnionWith(kings.AllButOne(rng));
+
             if (gs.NoveltySettings.RandomizeElevatorPass && gs.TransitionSettings.Mode == TransitionSettings.TransitionMode.None)
             {
                 // East Blue Lake and CMound are similar
