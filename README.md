@@ -6,7 +6,10 @@ Notes:
 that this number is less than the number of available starts.
 - The randomizer logic will expect that players have access to all of the selected start locations. 
 - It is possible to cycle between the available starts, and reset to the original start, using DebugMod (the start must still be
-warped to manually through Benchwarp).
+warped to manually through Benchwarp). To use:
+  - Open the Debug UI, and switch pages in the Keybinds panel to get to the Scatternest page
+  - Click the arrow next to Cycle Start to switch to another start
+  - Click the arrow next to Reset Start to revert to the original start assigned by the randomizer.
 - It is possible to choose a fixed start through the normal rando menu; in that case, that start will definitely be assigned, as well as a random selection of other starts.
 - If in an ItemSync game, players will be assigned different starts, but will be able to cycle between all of them if
 necessary. For instance: 
