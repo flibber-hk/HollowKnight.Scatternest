@@ -32,5 +32,7 @@ namespace Scatternest
 
         [JsonIgnore] public bool AddedStarts => Enabled && StartCount > 1;
         [JsonIgnore] public bool AnyStartsDisabled => DisabledStarts.Count > 0 || DelayedPreset is not EmptyPreset;
+
+        public ScatternestSettings Clone() => (ScatternestSettings)MemberwiseClone();
     }
 }

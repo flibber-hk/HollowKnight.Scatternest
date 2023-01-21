@@ -159,7 +159,7 @@ namespace Scatternest
                     HashSet<string> newlyDisabled = gen is null ? new() : gen.CreateExclusionList(
                         RandomizerMenuAPI.GenerateStartLocationDict(),
                         RandomizerMod.RandomizerMod.GS.DefaultMenuSettings,
-                        null,
+                        RandomizerMenuAPI.Menu.pm,
                         rng);
                     Scatternest.SET.DisabledStarts.UnionWith(newlyDisabled);
                     UpdateStartLocationExclusionSelector();

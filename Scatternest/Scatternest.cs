@@ -51,7 +51,7 @@ namespace Scatternest
 
             RCData.RuntimeLogicOverride.Subscribe(0f, AddResolver);
             RandoController.OnCalculateHash += ModifyHash;
-            RandoController.OnExportCompleted += AddDeployers;
+            RandoController.OnExportCompleted += OnExportCompleted;
             SettingsLog.AfterLogSettings += LogScatternestSettings;
             RandoMenuPage.Hook();
 
@@ -116,9 +116,12 @@ namespace Scatternest
             return ret;
         }
 
-        private void AddDeployers(RandoController rc)
+        private void OnExportCompleted(RandoController rc)
         {
-            if (!SET.AddedStarts) return;
+            if (!SET.Enabled) return;
+
+            ScatternestInteropModule mod = ItemChangerMod.Modules.Add<ScatternestInteropModule>();
+            mod.Settings = SET.Clone();
 
             if (rc.gs.StartLocationSettings.StartLocation.Contains("|Hive|"))
             {
