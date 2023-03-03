@@ -10,7 +10,7 @@ using UnityEngine;
 using System.Linq;
 using Scatternest.ExclusionPresets;
 
-namespace Scatternest
+namespace Scatternest.Menu
 {
     public class RandoMenuPage
     {
@@ -23,7 +23,7 @@ namespace Scatternest
         internal SmallButton JumpToSnButton;
 
         internal MenuPage StartLocationExclusionPage;
-        internal ToggleButton[] StartLocationButtons;
+        internal SmallButton[] StartLocationButtons;
         internal IMenuPanel StartLocationPanel;
         internal MenuItem<string> ApplyPresetNow;
         internal MenuItem<string> ApplyPresetOnStart;
@@ -60,7 +60,7 @@ namespace Scatternest
             }
             if (JumpToSleButton != null)
             {
-                JumpToSleButton.Text.color = Scatternest.SET.AnyStartsDisabled ? Colors.TRUE_COLOR : Colors.DEFAULT_COLOR;
+                JumpToSleButton.Text.color = Scatternest.SET.AnyStartsModified ? Colors.TRUE_COLOR : Colors.DEFAULT_COLOR;
             }
             if (ApplyPresetOnStart != null)
             {
@@ -70,22 +70,41 @@ namespace Scatternest
 
         private static void ConstructMenu(MenuPage landingPage) => Instance = new(landingPage);
 
-        private ToggleButton MakeStartToggle(string startName, MenuPage owner)
+        private readonly Dictionary<StartState, Color> ColorMap = new()
         {
-            ToggleButton button = new(owner, startName);
-            
+            [StartState.Normal] = Colors.TRUE_COLOR,
+            [StartState.Disabled] = Color.Lerp(Color.white, Color.red, 0.5f),
+            [StartState.Enabled] = Color.Lerp(Color.white, Color.green, 0.5f),
+        };
+
+        private SmallButton MakeStartToggle(string startName, MenuPage owner)
+        {
+            ColouredMenuButton<StartState> button = new(owner, startName, ColorMap);
+
             {
-                bool val = Scatternest.SET.DisabledStarts.Contains(startName);
+                StartState val =
+                    Scatternest.SET.DisabledStarts.Contains(startName)
+                    ? StartState.Disabled
+                    : Scatternest.SET.ExplicitlyEnabledStarts.Contains(startName)
+                        ? StartState.Enabled
+                        : StartState.Normal;
                 button.SetValue(val);
-                if (val) button.SetColor(Color.Lerp(Color.white, Color.red, 0.5f));
             }
-            
+
             button.ValueChanged += value =>
             {
-                if (value) Scatternest.SET.DisabledStarts.Add(startName);
-                else Scatternest.SET.DisabledStarts.Remove(startName);
+                Scatternest.SET.DisabledStarts.Remove(startName);
+                Scatternest.SET.ExplicitlyEnabledStarts.Remove(startName);
 
-                if (value) button.SetColor(Color.Lerp(Color.white, Color.red, 0.5f));
+                switch (value)
+                {
+                    case StartState.Disabled:
+                        Scatternest.SET.DisabledStarts.Add(startName);
+                        break;
+                    case StartState.Enabled:
+                        Scatternest.SET.ExplicitlyEnabledStarts.Add(startName);
+                        break;
+                }
 
                 SetButtonColors();
             };
@@ -111,11 +130,11 @@ namespace Scatternest
             else
             {
                 StartLocationPanel = new MultiGridItemPanel(
-                    StartLocationExclusionPage, 3, 10, 50f, 600f, 
+                    StartLocationExclusionPage, 3, 10, 50f, 600f,
                     new Vector2(0, 150),
                     new(-600f, -350f),
                     new(0f, 350f),
-                    new(600f, 350f), 
+                    new(600f, 350f),
                     StartLocationButtons);
             }
 
@@ -146,7 +165,7 @@ namespace Scatternest
             SnPage = new MenuPage(Localize("Scatternest"), landingPage);
 
             StartLocationExclusionPage = new MenuPage(Localize("Excluded Starts"), SnPage);
-            
+
             {
                 Dictionary<string, StartPresetGenerator> generators = StartPresetGenerator.CreateDict();
 
@@ -191,7 +210,7 @@ namespace Scatternest
                 ApplyPresetOnStart.MoveTo(new(-300, 350));
                 SelectAll.MoveTo(new(400, 400));
                 DeselectAll.MoveTo(new(400, 350));
-                
+
             }
             JumpToSleButton = new(SnPage, Localize("Excluded Starts"));
             JumpToSleButton.AddHideAndShowEvent(SnPage, StartLocationExclusionPage);

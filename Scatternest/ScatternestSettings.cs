@@ -13,6 +13,8 @@ namespace Scatternest
 
         public HashSet<string> DisabledStarts { get; set; } = new();
 
+        public HashSet<string> ExplicitlyEnabledStarts { get; set; } = new();
+
         [JsonIgnore] public StartPresetGenerator DelayedPreset { get; set; } = new EmptyPreset();
         [JsonProperty] private string _delayedPresetName;
 
@@ -31,7 +33,7 @@ namespace Scatternest
 
 
         [JsonIgnore] public bool AddedStarts => Enabled && StartCount > 1;
-        [JsonIgnore] public bool AnyStartsDisabled => DisabledStarts.Count > 0 || DelayedPreset is not EmptyPreset;
+        [JsonIgnore] public bool AnyStartsModified => DisabledStarts.Count > 0 || DelayedPreset is not EmptyPreset || ExplicitlyEnabledStarts.Count > 0;
 
         public ScatternestSettings Clone() => (ScatternestSettings)MemberwiseClone();
     }

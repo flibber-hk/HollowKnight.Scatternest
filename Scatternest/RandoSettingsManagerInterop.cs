@@ -1,6 +1,7 @@
 ﻿using RandoSettingsManager;
 using RandoSettingsManager.SettingsManagement;
 using RandoSettingsManager.SettingsManagement.Versioning;
+using Scatternest.Menu;
 
 namespace Scatternest
 {
