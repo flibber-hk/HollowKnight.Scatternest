@@ -51,3 +51,13 @@ will assign King's Pass, even if that has also been excluded.
 - The presets are blind to any changes made by connections. For example, Greenpath and Queen's Station will always be considered equivalent
 even if a connection which blocks access between the two is enabled.
 - Starts added by connections may or may not appear on this screen, but they will never be excluded by any of the presets.
+
+
+## Start Location Force Inclusion
+
+By turning on the "Allow Force Enable" toggle on the start location exclusion page, it is possible to mark starts as selectable, even if
+they shouldn't be (such as Hallownest Crown with default skip/transition rando settings). Clicking the start button after it is red
+will turn it green, to reflect that it can be randomized.
+
+For technical reasons, it is not possible to manually select a start in this way; to select a particular start, make sure that the other
+starts are disabled and then select Randomize Start in the base rando settings.

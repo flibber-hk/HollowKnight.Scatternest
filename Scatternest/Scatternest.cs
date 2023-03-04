@@ -6,6 +6,7 @@ using RandomizerMod.IC;
 using RandomizerMod.Logging;
 using RandomizerMod.RC;
 using RandomizerMod.Settings;
+using Scatternest.Menu;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -98,7 +99,7 @@ namespace Scatternest
             int startLocationModifier = rc.gs.StartLocationSettings.StartLocation.GetStableHashCode();
 
             int excludedStartsModifier;
-            if (SET.AnyStartsDisabled)
+            if (SET.AnyStartsModified)
             {
                 excludedStartsModifier = string.Join(", ", SET.DisabledStarts.OrderBy(x => x, StringComparer.InvariantCulture)).GetStableHashCode();
             }

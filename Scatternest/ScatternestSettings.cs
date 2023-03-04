@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MenuChanger.Attributes;
+using Newtonsoft.Json;
 using Scatternest.ExclusionPresets;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -12,6 +13,9 @@ namespace Scatternest
         public int StartCount { get; set; } = 2;
 
         public HashSet<string> DisabledStarts { get; set; } = new();
+
+        [MenuIgnore] public bool AllowExplictlyEnablingStarts { get; set; } = false;
+        public HashSet<string> ExplicitlyEnabledStarts { get; set; } = new();
 
         [JsonIgnore] public StartPresetGenerator DelayedPreset { get; set; } = new EmptyPreset();
         [JsonProperty] private string _delayedPresetName;
@@ -31,7 +35,7 @@ namespace Scatternest
 
 
         [JsonIgnore] public bool AddedStarts => Enabled && StartCount > 1;
-        [JsonIgnore] public bool AnyStartsDisabled => DisabledStarts.Count > 0 || DelayedPreset is not EmptyPreset;
+        [JsonIgnore] public bool AnyStartsModified => DisabledStarts.Count > 0 || DelayedPreset is not EmptyPreset || ExplicitlyEnabledStarts.Count > 0;
 
         public ScatternestSettings Clone() => (ScatternestSettings)MemberwiseClone();
     }
