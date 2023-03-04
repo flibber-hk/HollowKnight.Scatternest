@@ -13,6 +13,8 @@ namespace Scatternest
 {
     public class StartSelector
     {
+        private static readonly ILogger _logger = new SimpleLogger("Scatternest.StartSelector");
+
         private static StartSelector _instance;
         public static StartSelector Instance => _instance ??= new();
 
@@ -55,6 +57,7 @@ namespace Scatternest
 
             RandomizerMenuAPI.OnGenerateStartLocationDict += RemoveSelectedStarts;
             RandomizerMenuAPI.OnGenerateStartLocationDict += RemoveExcludedStarts;
+            RandomizerMenuAPI.OnGenerateStartLocationDict += AllowEnabledStarts;
             // Try-Finally just to be safe
             try
             {
@@ -68,9 +71,25 @@ namespace Scatternest
             {
                 RandomizerMenuAPI.OnGenerateStartLocationDict -= RemoveSelectedStarts;
                 RandomizerMenuAPI.OnGenerateStartLocationDict -= RemoveExcludedStarts;
+                RandomizerMenuAPI.OnGenerateStartLocationDict -= AllowEnabledStarts;
             }
 
             return true;
+        }
+
+        private void AllowEnabledStarts(Dictionary<string, StartDef> startDefs)
+        {
+            foreach (string enabled in Scatternest.SET.ExplicitlyEnabledStarts)
+            {
+                if (startDefs.TryGetValue(enabled, out StartDef def))
+                {
+                    startDefs[enabled] = def with
+                    {
+                        Logic = "TRUE",
+                        RandoLogic = "TRUE"
+                    };
+                }
+            }
         }
 
         private void RemoveExcludedStarts(Dictionary<string, StartDef> startDefs)
@@ -86,6 +105,9 @@ namespace Scatternest
 
         private StartDef SelectStartsInternal(Random rng, GenerationSettings gs, SettingsPM pm, List<StartDef> collectedStartDefs)
         {
+            _logger.LogDebug("Preparing to select starts");
+            _logger.LogDebug($"{RandomizerMenuAPI.GenerateStartLocationDict().Values.Where(x => x.CanBeRandomized(pm))} starts randomizable");
+
             StartDef def;
             SROwner owner = ReflectionHelper.GetField<SROwner>(typeof(RequestBuilder), "_onSelectStartOwner");
 

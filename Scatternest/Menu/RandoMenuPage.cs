@@ -29,6 +29,7 @@ namespace Scatternest.Menu
         internal MenuItem<string> ApplyPresetOnStart;
         internal SmallButton SelectAll;
         internal SmallButton DeselectAll;
+        internal ToggleButton AllowExplicitStarts;
         internal SmallButton JumpToSleButton;
 
         internal ToggleButton GlobalSettingsToggle;
@@ -72,7 +73,7 @@ namespace Scatternest.Menu
 
         private readonly Dictionary<StartState, Color> ColorMap = new()
         {
-            [StartState.Normal] = Colors.TRUE_COLOR,
+            [StartState.Normal] = Colors.FALSE_COLOR,
             [StartState.Disabled] = Color.Lerp(Color.white, Color.red, 0.5f),
             [StartState.Enabled] = Color.Lerp(Color.white, Color.green, 0.5f),
         };
@@ -101,8 +102,11 @@ namespace Scatternest.Menu
                     case StartState.Disabled:
                         Scatternest.SET.DisabledStarts.Add(startName);
                         break;
-                    case StartState.Enabled:
+                    case StartState.Enabled when Scatternest.SET.AllowExplictlyEnablingStarts:
                         Scatternest.SET.ExplicitlyEnabledStarts.Add(startName);
+                        break;
+                    case StartState.Enabled when !Scatternest.SET.AllowExplictlyEnablingStarts:
+                        button.SetValue(StartState.Normal);
                         break;
                 }
 
@@ -152,6 +156,8 @@ namespace Scatternest.Menu
             snMEF.SetMenuValues(settings);
             Scatternest.SET.DisabledStarts.Clear();
             Scatternest.SET.DisabledStarts.UnionWith(settings.DisabledStarts);
+            Scatternest.SET.ExplicitlyEnabledStarts.Clear();
+            Scatternest.SET.ExplicitlyEnabledStarts.UnionWith(settings.ExplicitlyEnabledStarts);
             ApplyPresetOnStart.SetValue(settings.DelayedPreset.DisplayName);
 
             UpdateStartLocationExclusionSelector();
@@ -196,6 +202,7 @@ namespace Scatternest.Menu
                 SelectAll.OnClick += () =>
                 {
                     Scatternest.SET.DisabledStarts.UnionWith(RandomizerMenuAPI.GenerateStartLocationDict().Keys);
+                    Scatternest.SET.ExplicitlyEnabledStarts.Clear();
                     UpdateStartLocationExclusionSelector();
                 };
 
@@ -203,6 +210,16 @@ namespace Scatternest.Menu
                 DeselectAll.OnClick += () =>
                 {
                     Scatternest.SET.DisabledStarts.Clear();
+                    Scatternest.SET.ExplicitlyEnabledStarts.Clear();
+                    UpdateStartLocationExclusionSelector();
+                };
+
+                AllowExplicitStarts = new(StartLocationExclusionPage, "Allow Force Enable");
+                AllowExplicitStarts.SetValue(Scatternest.SET.AllowExplictlyEnablingStarts);
+                AllowExplicitStarts.ValueChanged += v =>
+                {
+                    Scatternest.SET.AllowExplictlyEnablingStarts = v;
+                    if (!v) Scatternest.SET.ExplicitlyEnabledStarts.Clear();
                     UpdateStartLocationExclusionSelector();
                 };
 
@@ -210,6 +227,7 @@ namespace Scatternest.Menu
                 ApplyPresetOnStart.MoveTo(new(-300, 350));
                 SelectAll.MoveTo(new(400, 400));
                 DeselectAll.MoveTo(new(400, 350));
+                AllowExplicitStarts.MoveTo(new(600, StartLocationExclusionPage.backButton.GameObject.transform.localPosition.y));
 
             }
             JumpToSleButton = new(SnPage, Localize("Excluded Starts"));
