@@ -45,6 +45,8 @@ namespace Scatternest
 
             void RemoveSelectedStarts(Dictionary<string, StartDef> startDefs)
             {
+                if (Scatternest.SET.AllowRepeatedStarts) return;
+
                 foreach (string startName in collectedStartDefs.Select(x => x.Name).ToList())
                 {
                     if (collectedStartDefs.Contains(startDefs[startName]))

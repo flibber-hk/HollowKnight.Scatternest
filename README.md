@@ -29,6 +29,13 @@ necessary. For instance:
 - By default, Scatternest will not remember the settings (i.e. the state of the menu) between play sessions. This behaviour can be changed
 by toggling the Remember Settings button on the connection menu screen (the state of this button will be remembered between play sessions).
 
+## Allow Repeated Starts
+
+If this setting is enabled, it will be possible for multiple players to be assigned the same start. For example,
+in a 2 player, 2 start game, they may be both assigned the same start X or they may be assigned different starts X and Y.
+
+Each start is equally likely for start Y, so it is generally much more likely that the players have different starts.
+
 
 ## Start Location Exclusion
 

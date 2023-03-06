@@ -12,6 +12,8 @@ namespace Scatternest
 
         public int StartCount { get; set; } = 2;
 
+        public bool AllowRepeatedStarts { get; set; } = false;
+
         public HashSet<string> DisabledStarts { get; set; } = new();
 
         [MenuIgnore] public bool AllowExplictlyEnablingStarts { get; set; } = false;
