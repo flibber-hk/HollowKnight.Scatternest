@@ -48,6 +48,19 @@ namespace Scatternest
             Index = index;
         }
 
+        public void SetPrimaryIndex(string startName)
+        {
+            if (InnerStartNames.Contains(startName))
+            {
+                int index = InnerStartNames.IndexOf(startName);
+                SetPrimaryIndex(index);
+            }
+            else
+            {
+                Scatternest.instance.LogError($"Failed to force start with name {startName}");
+            }
+        }
+
         public void CycleIndex() => Index = (Index + 1) % InnerDefs.Count;
         public void ResetIndex() => Index = PrimaryIndex;
 

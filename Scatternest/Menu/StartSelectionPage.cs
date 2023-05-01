@@ -1,12 +1,9 @@
-﻿using IL.InControl.NativeDeviceProfiles;
-using MenuChanger;
+﻿using MenuChanger;
 using MenuChanger.Extensions;
 using MenuChanger.MenuElements;
 using MenuChanger.MenuPanels;
 using RandomizerMod.Menu;
 using RandomizerMod.RC;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using static RandomizerMod.Localization;
 
@@ -25,8 +22,6 @@ namespace Scatternest.Menu
         internal VerticalItemPanel ssVIP;
         private string[] _starts;
 
-        public static bool Active => Scatternest.SET.Enabled;
-
 
         public static void OnExitMenu()
         {
@@ -41,6 +36,8 @@ namespace Scatternest.Menu
 
         public void ResetRadioSwitch(RandoController rc)
         {
+            Scatternest.PrimaryStartName = null;
+
             if (rc.ctx.StartDef is not MultiRandoStart mrs)
             {
                 _starts = null;
@@ -51,8 +48,9 @@ namespace Scatternest.Menu
             string[]  _buttonNames = _starts.Prepend(Random).ToArray();
 
             ssSwitch = new(SSMenuPage, _buttonNames);
+            ssSwitch.Changed += s => Scatternest.PrimaryStartName = s == Random ? null : s;
             
-            foreach (IValueElement e in ssVIP.Items)
+            foreach (IMenuElement e in ssVIP.Items)
             {
                 e.Destroy();
             }
@@ -69,9 +67,9 @@ namespace Scatternest.Menu
 
         private static bool HandleButton(RandoController rc, MenuPage landingPage, out BaseButton button)
         {
-            Instance.ResetRadioSwitch(rc);
-            button = Instance.JumpToSSButton;
-            return Active;
+            Instance?.ResetRadioSwitch(rc);
+            button = Instance?.JumpToSSButton;
+            return Instance?._starts is not null;
         }
 
         public StartSelectionPage(MenuPage parent)
