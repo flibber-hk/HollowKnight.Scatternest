@@ -129,7 +129,6 @@ namespace Scatternest
             if (PrimaryStartName is not null)
             {
                 MultiItemchangerStart.Instance?.SetPrimaryIndex(PrimaryStartName);
-                PrimaryStartName = null;
             }
 
             if (rc.gs.StartLocationSettings.StartLocation.Contains("|Hive|"))
