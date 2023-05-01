@@ -55,6 +55,7 @@ namespace Scatternest
             RandoController.OnExportCompleted += OnExportCompleted;
             SettingsLog.AfterLogSettings += LogScatternestSettings;
             RandoMenuPage.Hook();
+            StartSelectionPage.Hook();
 
             if (ItemSyncUtil.ItemSyncInstalled())
             {
@@ -167,8 +168,7 @@ namespace Scatternest
 
             if (MultiItemchangerStart.Instance is MultiItemchangerStart start)
             {
-                start.Index = playerIndex;
-                start.PrimaryIndex = playerIndex;
+                start.SetPrimaryIndex(playerIndex);
             }
         }
     }

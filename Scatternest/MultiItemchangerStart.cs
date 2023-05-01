@@ -42,6 +42,12 @@ namespace Scatternest
 
         [JsonProperty] public int PrimaryIndex { get; internal set; }
 
+        public void SetPrimaryIndex(int index)
+        {
+            PrimaryIndex = index;
+            Index = index;
+        }
+
         public void CycleIndex() => Index = (Index + 1) % InnerDefs.Count;
         public void ResetIndex() => Index = PrimaryIndex;
 
