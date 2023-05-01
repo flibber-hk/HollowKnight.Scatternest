@@ -20,6 +20,7 @@ namespace Scatternest
         internal static Scatternest instance;
 
         public static ScatternestSettings SET => GS.MenuSettings;
+        public static string PrimaryStartName { get; set; } = null;
 
         public static GlobalSettings GS { get; private set; } = new();
         GlobalSettings IGlobalSettings<GlobalSettings>.OnSaveGlobal() => GS;
@@ -55,6 +56,7 @@ namespace Scatternest
             RandoController.OnExportCompleted += OnExportCompleted;
             SettingsLog.AfterLogSettings += LogScatternestSettings;
             RandoMenuPage.Hook();
+            StartSelectionPage.Hook();
 
             if (ItemSyncUtil.ItemSyncInstalled())
             {
@@ -124,6 +126,11 @@ namespace Scatternest
             ScatternestInteropModule mod = ItemChangerMod.Modules.Add<ScatternestInteropModule>();
             mod.Settings = SET.Clone();
 
+            if (PrimaryStartName is not null)
+            {
+                MultiItemchangerStart.Instance?.SetPrimaryIndex(PrimaryStartName);
+            }
+
             if (rc.gs.StartLocationSettings.StartLocation.Contains("|Hive|"))
             {
                 ItemChangerMod.AddDeployer(new SmallPlatform { SceneName = SceneNames.Hive_03, X = 58.5f, Y = 134f, Test = PlatformList.lacksRightClaw });
@@ -153,6 +160,7 @@ namespace Scatternest
         {
             if (!SET.AddedStarts) return;
             if (!ItemSyncUtil.IsItemSync()) return;
+            if (PrimaryStartName is not null) return;
 
             // Select a consistent ordering of the players
 
@@ -167,8 +175,7 @@ namespace Scatternest
 
             if (MultiItemchangerStart.Instance is MultiItemchangerStart start)
             {
-                start.Index = playerIndex;
-                start.PrimaryIndex = playerIndex;
+                start.SetPrimaryIndex(playerIndex);
             }
         }
     }
