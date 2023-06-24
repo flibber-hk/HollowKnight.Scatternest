@@ -69,7 +69,13 @@ namespace Scatternest.Menu
         {
             Instance?.ResetRadioSwitch(rc);
             button = Instance?.JumpToSSButton;
-            return Instance?._starts is not null;
+
+            bool shouldShowButton = Instance?._starts is not null;
+
+            if (!shouldShowButton) button.Hide();
+            else button.Show();
+
+            return shouldShowButton;
         }
 
         public StartSelectionPage(MenuPage parent)
