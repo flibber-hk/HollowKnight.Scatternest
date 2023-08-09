@@ -154,7 +154,12 @@ namespace Scatternest
         public void HookItemSync()
         {
             RandoController.OnExportCompleted += SelectStartIndex;
-            MultiWorldLib.ExportedAPI.ExportedExtensionsMenuAPI.MenuStateEvents.OnAddReadyMetadata += ItemSyncUtil.AddPrimaryStart;
+
+            MultiWorldLib.ExportedAPI.ExportedExtensionsMenuAPI.AddExtensionsMenu(_ =>
+            {
+                MultiWorldLib.ExportedAPI.ExportedExtensionsMenuAPI.MenuStateEvents.OnAddReadyMetadata += ItemSyncUtil.AddPrimaryStart;
+                return null;
+            });
         }
 
         private static bool ValidatePrimaryStarts(MultiItemchangerStart multiStart, IEnumerable<string> primaryStarts)
