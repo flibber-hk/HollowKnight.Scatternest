@@ -1,4 +1,5 @@
 ﻿using Modding;
+using System.Collections.Generic;
 
 namespace Scatternest
 {
@@ -7,6 +8,8 @@ namespace Scatternest
     /// </summary>
     internal static class ItemSyncUtil
     {
+        private const string PRIMARY_START_LABEL = "SCATTERNEST_PRIMARY_START";
+
         public static bool ItemSyncInstalled() => ModHooks.GetMod("ItemSyncMod") is not null;
 
         public static bool IsItemSync()
@@ -40,6 +43,20 @@ namespace Scatternest
         private static int PlayerIDInternal()
         {
             return ItemSyncMod.ItemSyncMod.ISSettings.MWPlayerId;
+        }
+
+        public static void AddPrimaryStart(Dictionary<string, string> metadata) {
+            if (Scatternest.PrimaryStartName == null) return;
+            metadata[PRIMARY_START_LABEL] = Scatternest.PrimaryStartName;
+        }
+
+        public static Dictionary<int, string> GetPrimaryStarts()
+        {
+            Dictionary<int, string> dict = new();
+            var metadataList = ItemSyncMod.ItemSyncMod.ISSettings.readyMetadata;
+            for (int i = 0; i < metadataList.Count; i++) if (metadataList[i].TryGetValue(PRIMARY_START_LABEL, out var value)) dict[i] = value;
+
+            return dict;
         }
     }
 }

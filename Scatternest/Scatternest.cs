@@ -154,6 +154,18 @@ namespace Scatternest
         public void HookItemSync()
         {
             RandoController.OnExportCompleted += SelectStartIndex;
+            MultiWorldLib.ExportedAPI.ExportedExtensionsMenuAPI.MenuStateEvents.OnAddReadyMetadata += ItemSyncUtil.AddPrimaryStart;
+        }
+
+        private static bool ValidatePrimaryStarts(MultiItemchangerStart multiStart, IEnumerable<string> primaryStarts)
+        {
+            HashSet<string> starts = new();
+            foreach (var start in primaryStarts)
+            {
+                if (!multiStart.InnerStartNames.Contains(start)) return false;  // Invalid
+                if (!starts.Add(start)) return false;  // dupe
+            }
+            return true;
         }
 
         private void SelectStartIndex(RandoController rc)
@@ -161,22 +173,29 @@ namespace Scatternest
             if (!SET.AddedStarts) return;
             if (!ItemSyncUtil.IsItemSync()) return;
             if (PrimaryStartName is not null) return;
+            if (MultiItemchangerStart.Instance is not MultiItemchangerStart multiStart) return;
 
             // Select a consistent ordering of the players
-
             List<int> indices = Enumerable.Range(0, ItemSyncUtil.PlayerCount())
                 .Select(x => x % SET.StartCount)
                 .ToList();
+            int effectivePlayerIndex = ItemSyncUtil.PlayerID();
+
+            var primaryStarts = ItemSyncUtil.GetPrimaryStarts();
+            if (SET.StartCount == ItemSyncUtil.PlayerCount() && primaryStarts.Count > 0)
+            {
+                if (ValidatePrimaryStarts(multiStart, primaryStarts.Values))
+                {
+                    // Respect other players' start selections.
+                    foreach (var start in primaryStarts.Values) indices.Remove(multiStart.InnerStartNames.IndexOf(start));
+                    for (int i = 0; i < ItemSyncUtil.PlayerID(); i++) if (primaryStarts.ContainsKey(i)) --effectivePlayerIndex;
+                }
+                else LogWarn($"Primary starts are invalid: {primaryStarts.Values}");
+            }
 
             Random rng = new(rc.gs.Seed + 163);
             rng.PermuteInPlace(indices);
-
-            int playerIndex = indices[ItemSyncUtil.PlayerID()];
-
-            if (MultiItemchangerStart.Instance is MultiItemchangerStart start)
-            {
-                start.SetPrimaryIndex(playerIndex);
-            }
+            multiStart.SetPrimaryIndex(indices[effectivePlayerIndex]);
         }
     }
 }
