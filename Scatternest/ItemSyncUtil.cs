@@ -45,7 +45,8 @@ namespace Scatternest
             return ItemSyncMod.ItemSyncMod.ISSettings.MWPlayerId;
         }
 
-        public static void AddPrimaryStart(Dictionary<string, string> metadata) {
+        public static void AddPrimaryStart(Dictionary<string, string> metadata)
+        {
             if (Scatternest.PrimaryStartName == null) return;
             metadata[PRIMARY_START_LABEL] = Scatternest.PrimaryStartName;
         }
