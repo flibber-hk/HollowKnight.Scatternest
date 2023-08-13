@@ -67,8 +67,8 @@ namespace Scatternest
             Dictionary<int, string> dict = new();
             if (!IsItemSync()) return dict;
 
-            var metadataList = ItemSyncMod.ItemSyncMod.ISSettings.readyMetadata;
-            for (int i = 0; i < metadataList.Count; i++) if (metadataList[i].TryGetValue(PRIMARY_START_LABEL, out var value)) dict[i] = value;
+            List<Dictionary<string, string>> metadataList = ItemSyncMod.ItemSyncMod.ISSettings.readyMetadata;
+            for (int i = 0; i < metadataList.Count; i++) if (metadataList[i].TryGetValue(PRIMARY_START_LABEL, out string value)) dict[i] = value;
             return dict;
         }
     }

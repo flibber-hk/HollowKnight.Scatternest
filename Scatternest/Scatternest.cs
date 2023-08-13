@@ -162,10 +162,10 @@ namespace Scatternest
             Dictionary<int, int> assignments = new();
 
             // Account for primary starts.
-            var primaryStarts = ItemSyncUtil.GetPrimaryStarts();
+            Dictionary<int, string> primaryStarts = ItemSyncUtil.GetPrimaryStarts();
             List<int> startSelections = new();
             for (int i = 0; i < SET.StartCount; i++) startSelections.Add(0);
-            foreach (var e in primaryStarts)
+            foreach (KeyValuePair<int, string> e in primaryStarts)
             {
                 int idx = multiStart.InnerStartNames.IndexOf(e.Value);
                 if (idx < 0) continue;
@@ -211,7 +211,7 @@ namespace Scatternest
             if (MultiItemchangerStart.Instance is not MultiItemchangerStart multiStart) return;
 
             // Select a consistent ordering of the players
-            var assignments = SelectPrimaryStarts(multiStart, rc.gs.Seed + 163);
+            Dictionary<int, int> assignments = SelectPrimaryStarts(multiStart, rc.gs.Seed + 163);
             multiStart.SetPrimaryIndex(assignments[ItemSyncUtil.PlayerID()]);
         }
     }
