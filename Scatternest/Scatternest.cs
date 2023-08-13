@@ -162,15 +162,50 @@ namespace Scatternest
             });
         }
 
-        private static bool ValidatePrimaryStarts(MultiItemchangerStart multiStart, IEnumerable<string> primaryStarts)
+        private Dictionary<int, int> SelectPrimaryStarts(MultiItemchangerStart multiStart, int seed)
         {
-            HashSet<string> starts = new();
-            foreach (var start in primaryStarts)
+            Dictionary<int, int> assignments = new();
+
+            // Account for primary starts.
+            var primaryStarts = ItemSyncUtil.GetPrimaryStarts();
+            List<int> startSelections = new();
+            for (int i = 0; i < SET.StartCount; i++) startSelections.Add(0);
+            foreach (var e in primaryStarts)
             {
-                if (!multiStart.InnerStartNames.Contains(start)) return false;  // Invalid
-                if (!starts.Add(start)) return false;  // dupe
+                int idx = multiStart.InnerStartNames.IndexOf(e.Value);
+                if (idx < 0) continue;
+
+                startSelections[idx] = startSelections[idx] + 1;
+                assignments[e.Key] = idx;
             }
-            return true;
+
+            // Assign all unassigned players in a random order.
+            Random rng = new(seed);
+            List<int> players = Enumerable.Range(0, ItemSyncUtil.PlayerCount()).ToList();
+            List<int> starts = Enumerable.Range(0, SET.StartCount).ToList();
+            rng.PermuteInPlace(players);
+            rng.PermuteInPlace(starts);
+            foreach (int player in players)
+            {
+                if (assignments.ContainsKey(player)) continue;
+
+                // Find the smallest start.
+                int lowestStart = -1;
+                int count = int.MaxValue;
+                foreach (int start in starts)
+                {
+                    if (startSelections[start] < count)
+                    {
+                        lowestStart = start;
+                        count = startSelections[start];
+                    }
+                }
+
+                assignments[player] = lowestStart;
+                startSelections[lowestStart] = startSelections[lowestStart] + 1;
+            }
+
+            return assignments;
         }
 
         private void SelectStartIndex(RandoController rc)
@@ -181,26 +216,8 @@ namespace Scatternest
             if (MultiItemchangerStart.Instance is not MultiItemchangerStart multiStart) return;
 
             // Select a consistent ordering of the players
-            List<int> indices = Enumerable.Range(0, ItemSyncUtil.PlayerCount())
-                .Select(x => x % SET.StartCount)
-                .ToList();
-            int effectivePlayerIndex = ItemSyncUtil.PlayerID();
-
-            var primaryStarts = ItemSyncUtil.GetPrimaryStarts();
-            if (SET.StartCount == ItemSyncUtil.PlayerCount() && primaryStarts.Count > 0)
-            {
-                if (ValidatePrimaryStarts(multiStart, primaryStarts.Values))
-                {
-                    // Respect other players' start selections.
-                    foreach (var start in primaryStarts.Values) indices.Remove(multiStart.InnerStartNames.IndexOf(start));
-                    for (int i = 0; i < ItemSyncUtil.PlayerID(); i++) if (primaryStarts.ContainsKey(i)) --effectivePlayerIndex;
-                }
-                else LogWarn($"Primary starts are invalid: {primaryStarts.Values}");
-            }
-
-            Random rng = new(rc.gs.Seed + 163);
-            rng.PermuteInPlace(indices);
-            multiStart.SetPrimaryIndex(indices[effectivePlayerIndex]);
+            var assignments = SelectPrimaryStarts(multiStart, rc.gs.Seed + 163);
+            multiStart.SetPrimaryIndex(assignments[ItemSyncUtil.PlayerID()]);
         }
     }
 }
