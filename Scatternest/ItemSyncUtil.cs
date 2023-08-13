@@ -65,9 +65,10 @@ namespace Scatternest
         public static Dictionary<int, string> GetPrimaryStarts()
         {
             Dictionary<int, string> dict = new();
+            if (!IsItemSync()) return dict;
+
             var metadataList = ItemSyncMod.ItemSyncMod.ISSettings.readyMetadata;
             for (int i = 0; i < metadataList.Count; i++) if (metadataList[i].TryGetValue(PRIMARY_START_LABEL, out var value)) dict[i] = value;
-
             return dict;
         }
     }
