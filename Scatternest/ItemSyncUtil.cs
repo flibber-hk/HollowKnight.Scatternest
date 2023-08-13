@@ -1,5 +1,6 @@
 ﻿using Modding;
 using System.Collections.Generic;
+using UnityEngine.Profiling.Memory.Experimental;
 
 namespace Scatternest
 {
@@ -45,10 +46,20 @@ namespace Scatternest
             return ItemSyncMod.ItemSyncMod.ISSettings.MWPlayerId;
         }
 
-        public static void AddPrimaryStart(Dictionary<string, string> metadata)
+        public static void HookPrimaryStart()
         {
-            if (Scatternest.PrimaryStartName == null) return;
-            metadata[PRIMARY_START_LABEL] = Scatternest.PrimaryStartName;
+            if (!ItemSyncInstalled()) return;
+
+            MultiWorldLib.ExportedAPI.ExportedExtensionsMenuAPI.AddExtensionsMenu(_ =>
+            {
+                MultiWorldLib.ExportedAPI.ExportedExtensionsMenuAPI.MenuStateEvents.OnAddReadyMetadata += metadata =>
+                {
+                    if (Scatternest.PrimaryStartName == null) return;
+                    metadata[PRIMARY_START_LABEL] = Scatternest.PrimaryStartName;
+                };
+                return null;
+            });
+
         }
 
         public static Dictionary<int, string> GetPrimaryStarts()
