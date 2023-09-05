@@ -1,6 +1,5 @@
 ﻿using Modding;
 using System.Collections.Generic;
-using UnityEngine.Profiling.Memory.Experimental;
 
 namespace Scatternest
 {
@@ -63,6 +62,13 @@ namespace Scatternest
         }
 
         public static Dictionary<int, string> GetPrimaryStarts()
+        {
+            if (!ItemSyncInstalled()) return new();
+
+            return GetPrimaryStartsInternal();
+        }
+
+        private static Dictionary<int, string> GetPrimaryStartsInternal() 
         {
             Dictionary<int, string> dict = new();
             if (!IsItemSync()) return dict;

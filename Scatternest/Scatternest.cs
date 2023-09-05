@@ -157,47 +157,54 @@ namespace Scatternest
             ItemSyncUtil.HookPrimaryStart();
         }
 
-        private Dictionary<int, int> SelectPrimaryStarts(MultiItemchangerStart multiStart, int seed)
+        /// <summary>
+        /// Generate a consistent mapping from player id to start name with the following properties:
+        /// - Primary starts are respected
+        /// - Start counts are as balanced as possible.
+        /// 
+        /// We do so by iteratively assigning random start players to the least popular start (breaking ties uniformly).
+        /// </summary>
+        private Dictionary<int, string> SelectPrimaryStarts(List<string> startNames, int seed)
         {
-            Dictionary<int, int> assignments = new();
+            Dictionary<int, string> assignments = new();
+            Dictionary<string, int> assignmentCounts = new();
+            foreach (string startName in startNames)
+            {
+                assignmentCounts[startName] = 0;
+            }
+
+            void assignStart(int playerId, string startName)
+            {
+                if (!assignmentCounts.ContainsKey(startName))
+                {
+                    LogWarn($"Could not assign start {startName} to player {playerId}: start missing");
+                    return;
+                }
+                assignments[playerId] = startName;
+                assignmentCounts[startName]++;
+            }
 
             // Account for primary starts.
             Dictionary<int, string> primaryStarts = ItemSyncUtil.GetPrimaryStarts();
-            List<int> startSelections = new();
-            for (int i = 0; i < SET.StartCount; i++) startSelections.Add(0);
-            foreach (KeyValuePair<int, string> e in primaryStarts)
-            {
-                int idx = multiStart.InnerStartNames.IndexOf(e.Value);
-                if (idx < 0) continue;
 
-                startSelections[idx] = startSelections[idx] + 1;
-                assignments[e.Key] = idx;
+            foreach ((int playerId, string startName) in primaryStarts)
+            {
+                assignStart(playerId, startName);
             }
 
             // Assign all unassigned players in a random order.
             Random rng = new(seed);
             List<int> players = Enumerable.Range(0, ItemSyncUtil.PlayerCount()).ToList();
-            List<int> starts = Enumerable.Range(0, SET.StartCount).ToList();
+            List<string> permutedStarts = new(startNames);
             rng.PermuteInPlace(players);
-            rng.PermuteInPlace(starts);
-            foreach (int player in players)
+            rng.PermuteInPlace(permutedStarts);
+
+            foreach (int playerId in players)
             {
-                if (assignments.ContainsKey(player)) continue;
+                if (assignments.ContainsKey(playerId)) continue;
 
-                // Find the smallest start.
-                int lowestStart = -1;
-                int count = int.MaxValue;
-                foreach (int start in starts)
-                {
-                    if (startSelections[start] < count)
-                    {
-                        lowestStart = start;
-                        count = startSelections[start];
-                    }
-                }
-
-                assignments[player] = lowestStart;
-                startSelections[lowestStart] = startSelections[lowestStart] + 1;
+                string nextStart = permutedStarts.OrderBy(x => assignmentCounts[x]).First();
+                assignStart(playerId, nextStart);
             }
 
             return assignments;
@@ -208,11 +215,10 @@ namespace Scatternest
             if (!SET.AddedStarts) return;
             if (!ItemSyncUtil.IsItemSync()) return;
             if (PrimaryStartName is not null) return;
-            if (MultiItemchangerStart.Instance is not MultiItemchangerStart multiStart) return;
+            if (MultiItemchangerStart.Instance is not MultiItemchangerStart start) return;
 
-            // Select a consistent ordering of the players
-            Dictionary<int, int> assignments = SelectPrimaryStarts(multiStart, rc.gs.Seed + 163);
-            multiStart.SetPrimaryIndex(assignments[ItemSyncUtil.PlayerID()]);
+            Dictionary<int, string> assignments = SelectPrimaryStarts(start.InnerStartNames, rc.gs.Seed + 163);
+            start.SetPrimaryIndex(assignments[ItemSyncUtil.PlayerID()]);
         }
     }
 }
