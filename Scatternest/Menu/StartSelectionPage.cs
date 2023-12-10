@@ -1,7 +1,9 @@
-﻿using MenuChanger;
+﻿using ItemChangerDataLoader;
+using MenuChanger;
 using MenuChanger.Extensions;
 using MenuChanger.MenuElements;
 using MenuChanger.MenuPanels;
+using Modding;
 using RandomizerMod.Menu;
 using RandomizerMod.RC;
 using System.Linq;
@@ -11,9 +13,11 @@ namespace Scatternest.Menu
 {
     internal class StartSelectionPage
     {
+        private static StartSelectionPage RandoInstance;
+        private static StartSelectionPage IcdlInstance;
+
         private const string Random = "Random";
 
-        internal static StartSelectionPage Instance { get; private set; }
         internal BigButton JumpToSSButton;
 
         internal MenuPage SSMenuPage;
@@ -22,30 +26,50 @@ namespace Scatternest.Menu
         internal VerticalItemPanel ssVIP;
         private string[] _starts;
 
-
-        public static void OnExitMenu()
+        private static void OnExitMenu()
         {
-            Instance = null;
+            RandoInstance = null;
+            IcdlInstance = null;
         }
 
         public static void Hook()
         {
-            RandomizerMenuAPI.AddStartGameOverride(ConstructMenu, HandleButton);
+            RandomizerMenuAPI.AddStartGameOverride(
+                page => RandoInstance = new(page),
+                (RandoController rc, MenuPage landingPage, out BaseButton button) =>
+                {
+                    button = null;
+                    return RandoInstance?.HandleButton(rc.ctx, landingPage, out button) ?? false;
+                });
+
+            if (ModHooks.GetMod("ICDL Mod") is Mod) HookICDL();
+
             MenuChangerMod.OnExitMainMenu += OnExitMenu;
         }
 
-        public void ResetRadioSwitch(RandoController rc)
+        private static void HookICDL()
+        {
+            ICDLMenuAPI.AddStartGameOverride(
+                page => IcdlInstance = new(page),
+                (ICDLMenu.StartData data, MenuPage landingPage, out BaseButton button) =>
+                {
+                    button = null;
+                    return IcdlInstance?.HandleButton(data.CTX, landingPage, out button) ?? false;
+                });
+        }
+
+        public void ResetRadioSwitch(RandoModContext ctx)
         {
             Scatternest.PrimaryStartName = null;
 
-            if (rc.ctx.StartDef is not MultiRandoStart mrs)
+            if (ctx?.StartDef is not MultiRandoStart mrs)
             {
                 _starts = null;
                 return;
             }
 
             _starts = mrs.InnerDefs.Select(s => s.Name).ToArray();
-            string[]  _buttonNames = _starts.Prepend(Random).ToArray();
+            string[] _buttonNames = _starts.Prepend(Random).ToArray();
 
             ssSwitch = new(SSMenuPage, _buttonNames);
             ssSwitch.Changed += s => Scatternest.PrimaryStartName = s == Random ? null : s;
@@ -63,29 +87,30 @@ namespace Scatternest.Menu
             ssVIP.Reposition();
         }
 
-        private static void ConstructMenu(MenuPage landingPage) => Instance = new(landingPage);
-
-        private static bool HandleButton(RandoController rc, MenuPage landingPage, out BaseButton button)
+        private bool HandleButton(RandoModContext ctx, MenuPage landingPage, out BaseButton button)
         {
-            Instance?.ResetRadioSwitch(rc);
-            button = Instance?.JumpToSSButton;
+            ResetRadioSwitch(ctx);
 
-            bool shouldShowButton = Instance?._starts is not null;
+            if (_starts is not null)
+            {
+                JumpToSSButton = new(landingPage, Localize("Start Selection"));
+                JumpToSSButton.AddHideAndShowEvent(landingPage, SSMenuPage);
+                JumpToSSButton.Show();
 
-            if (!shouldShowButton) button?.Hide();
-            else button?.Show();
-
-            return shouldShowButton;
+                button = JumpToSSButton;
+                return true;
+            }
+            else
+            {
+                button = null;
+                return false;
+            }
         }
 
         public StartSelectionPage(MenuPage parent)
         {
             SSMenuPage = new MenuPage(Localize("Scatternest Start Selection"), parent);
-
             ssVIP = new(SSMenuPage, new(0, 300), 50f, true);
-
-            JumpToSSButton = new(parent, Localize("Start Selection"));
-            JumpToSSButton.AddHideAndShowEvent(parent, SSMenuPage);
         }
     }
 }
