@@ -43,12 +43,16 @@ namespace Scatternest.Menu
             MenuChangerMod.OnExitMainMenu += OnExitMenu;
         }
 
+        public static int ICDLHash { get; private set; }
+
         private static void HookICDL()
         {
             ICDLMenuAPI.AddStartGameOverride(
                 page => Instances[page] = new(page),
                 (ICDLMenu.StartData data, MenuPage landingPage, out BaseButton button) =>
                 {
+                    ICDLHash = data.Hash();
+
                     button = null;
                     return Instances.TryGetValue(landingPage, out var instance) && instance.HandleButton(data.CTX, landingPage, out button);
                 });
