@@ -229,7 +229,8 @@ namespace Scatternest
 
         private void ICDLSelectStartIndex(On.UIManager.orig_StartNewGame orig, UIManager self, bool permaDeathMode, bool bossRushMode)
         {
-            if (ItemChangerDataLoader.ICDLMod.LocalSettings.IsICDLSave) SelectStartIndex(StartSelectionPage.ICDLHash + 157);
+            if (PrimaryStartName is not null) MultiItemchangerStart.Instance?.SetPrimaryIndex(PrimaryStartName);
+            else if (ItemChangerDataLoader.ICDLMod.LocalSettings.IsICDLSave) SelectStartIndex(StartSelectionPage.ICDLHash + 157);
             orig(self, permaDeathMode, bossRushMode);
         }
     }
