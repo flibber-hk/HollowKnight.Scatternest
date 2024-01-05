@@ -6,6 +6,7 @@ using MenuChanger.MenuPanels;
 using Modding;
 using RandomizerMod.Menu;
 using RandomizerMod.RC;
+using System.Collections.Generic;
 using System.Linq;
 using static RandomizerMod.Localization;
 
@@ -13,8 +14,7 @@ namespace Scatternest.Menu
 {
     internal class StartSelectionPage
     {
-        private static StartSelectionPage RandoInstance;
-        private static StartSelectionPage IcdlInstance;
+        private static Dictionary<MenuPage, StartSelectionPage> Instances = new();
 
         private const string Random = "Random";
 
@@ -26,20 +26,16 @@ namespace Scatternest.Menu
         internal VerticalItemPanel ssVIP;
         private string[] _starts;
 
-        private static void OnExitMenu()
-        {
-            RandoInstance = null;
-            IcdlInstance = null;
-        }
+        private static void OnExitMenu() => Instances.Clear();
 
         public static void Hook()
         {
             RandomizerMenuAPI.AddStartGameOverride(
-                page => RandoInstance = new(page),
+                page => Instances[page] = new(page),
                 (RandoController rc, MenuPage landingPage, out BaseButton button) =>
                 {
                     button = null;
-                    return RandoInstance?.HandleButton(rc.ctx, landingPage, out button) ?? false;
+                    return Instances.TryGetValue(landingPage, out var instance) && instance.HandleButton(rc.ctx, landingPage, out button);
                 });
 
             if (ModHooks.GetMod("ICDL Mod") is Mod) HookICDL();
@@ -50,11 +46,11 @@ namespace Scatternest.Menu
         private static void HookICDL()
         {
             ICDLMenuAPI.AddStartGameOverride(
-                page => IcdlInstance = new(page),
+                page => Instances[page] = new(page),
                 (ICDLMenu.StartData data, MenuPage landingPage, out BaseButton button) =>
                 {
                     button = null;
-                    return IcdlInstance?.HandleButton(data.CTX, landingPage, out button) ?? false;
+                    return Instances.TryGetValue(landingPage, out var instance) && instance.HandleButton(data.CTX, landingPage, out button);
                 });
         }
 
@@ -91,26 +87,17 @@ namespace Scatternest.Menu
         {
             ResetRadioSwitch(ctx);
 
-            if (_starts is not null)
-            {
-                JumpToSSButton = new(landingPage, Localize("Start Selection"));
-                JumpToSSButton.AddHideAndShowEvent(landingPage, SSMenuPage);
-                JumpToSSButton.Show();
-
-                button = JumpToSSButton;
-                return true;
-            }
-            else
-            {
-                button = null;
-                return false;
-            }
+            button = JumpToSSButton;
+            return _starts is not null;
         }
 
         public StartSelectionPage(MenuPage parent)
         {
             SSMenuPage = new MenuPage(Localize("Scatternest Start Selection"), parent);
             ssVIP = new(SSMenuPage, new(0, 300), 50f, true);
+
+            JumpToSSButton = new(parent, Localize("Start Selection"));
+            JumpToSSButton.AddHideAndShowEvent(SSMenuPage);
         }
     }
 }
