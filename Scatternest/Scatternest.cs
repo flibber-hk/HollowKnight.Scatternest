@@ -154,7 +154,7 @@ namespace Scatternest
         public void HookItemSync()
         {
             RandoController.OnExportCompleted += RandoControllerSelectStartIndex;
-            if (ModHooks.GetMod("ICDL Mod") is Mod) On.UIManager.StartNewGame += ICDLSelectStartIndex;
+            if (ModHooks.GetMod("ICDL Mod") is Mod) Events.BeforeStartNewGame += ICDLSelectStartIndex;
             ItemSyncUtil.HookPrimaryStart();
         }
 
@@ -227,11 +227,10 @@ namespace Scatternest
             SelectStartIndex(rc.gs.Seed + 163);
         }
 
-        private void ICDLSelectStartIndex(On.UIManager.orig_StartNewGame orig, UIManager self, bool permaDeathMode, bool bossRushMode)
+        private void ICDLSelectStartIndex()
         {
             if (PrimaryStartName is not null) MultiItemchangerStart.Instance?.SetPrimaryIndex(PrimaryStartName);
             else if (ItemChangerDataLoader.ICDLMod.LocalSettings.IsICDLSave) SelectStartIndex(StartSelectionPage.ICDLHash + 157);
-            orig(self, permaDeathMode, bossRushMode);
         }
     }
 }

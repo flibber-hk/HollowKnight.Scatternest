@@ -38,25 +38,10 @@ namespace Scatternest.Menu
                     return Instances.TryGetValue(landingPage, out var instance) && instance.HandleButton(rc.ctx, landingPage, out button);
                 });
 
-            if (ModHooks.GetMod("ICDL Mod") is Mod) HookICDL();
-
-            MenuChangerMod.OnExitMainMenu += OnExitMenu;
+            if (ModHooks.GetMod("ICDL Mod") is Mod) ICDLInterop.HookICDL(Instances);
         }
 
-        public static int ICDLHash { get; private set; }
-
-        private static void HookICDL()
-        {
-            ICDLMenuAPI.AddStartGameOverride(
-                page => Instances[page] = new(page),
-                (ICDLMenu.StartData data, MenuPage landingPage, out BaseButton button) =>
-                {
-                    ICDLHash = data.Hash();
-
-                    button = null;
-                    return Instances.TryGetValue(landingPage, out var instance) && instance.HandleButton(data.CTX, landingPage, out button);
-                });
-        }
+        public static int ICDLHash;
 
         public void ResetRadioSwitch(RandoModContext ctx)
         {
@@ -87,7 +72,7 @@ namespace Scatternest.Menu
             ssVIP.Reposition();
         }
 
-        private bool HandleButton(RandoModContext ctx, MenuPage landingPage, out BaseButton button)
+        internal bool HandleButton(RandoModContext ctx, MenuPage landingPage, out BaseButton button)
         {
             ResetRadioSwitch(ctx);
 
