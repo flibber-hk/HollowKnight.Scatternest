@@ -26,8 +26,6 @@ namespace Scatternest.Menu
         internal VerticalItemPanel ssVIP;
         private string[] _starts;
 
-        private static void OnExitMenu() => Instances.Clear();
-
         public static void Hook()
         {
             RandomizerMenuAPI.AddStartGameOverride(
@@ -37,6 +35,7 @@ namespace Scatternest.Menu
                     button = null;
                     return Instances.TryGetValue(landingPage, out var instance) && instance.HandleButton(rc.ctx, landingPage, out button);
                 });
+            MenuChangerMod.OnExitMainMenu += Instances.Clear;
 
             if (ModHooks.GetMod("ICDL Mod") is Mod) ICDLInterop.HookICDL(Instances);
         }
