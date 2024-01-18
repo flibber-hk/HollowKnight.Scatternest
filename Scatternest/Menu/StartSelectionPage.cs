@@ -76,7 +76,11 @@ namespace Scatternest.Menu
             ResetRadioSwitch(ctx);
 
             button = JumpToSSButton;
-            return _starts is not null;
+            bool show = _starts is not null;
+
+            if (show) button.Show();
+            else button.Hide();
+            return show;
         }
 
         public StartSelectionPage(MenuPage parent)
