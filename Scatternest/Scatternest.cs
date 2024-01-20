@@ -56,7 +56,7 @@ namespace Scatternest
             RandoController.OnExportCompleted += OnExportCompleted;
             SettingsLog.AfterLogSettings += LogScatternestSettings;
             RandoMenuPage.Hook();
-            StartSelectionPage.Hook();
+            StartSelectionPageManager.Hook();
 
             if (ItemSyncUtil.ItemSyncInstalled())
             {
@@ -230,7 +230,7 @@ namespace Scatternest
         private void ICDLSelectStartIndex()
         {
             if (PrimaryStartName is not null) MultiItemchangerStart.Instance?.SetPrimaryIndex(PrimaryStartName);
-            else if (ItemChangerDataLoader.ICDLMod.LocalSettings.IsICDLSave) SelectStartIndex(StartSelectionPage.ICDLHash + 157);
+            else if (ItemChangerDataLoader.ICDLMod.LocalSettings.IsICDLSave) SelectStartIndex(StartSelectionPageManager.ICDLHash + 157);
         }
     }
 }

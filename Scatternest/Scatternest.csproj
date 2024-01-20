@@ -32,7 +32,7 @@
       <HintPath>$(HollowKnightRefs)\Mods\ItemChanger\ItemChanger.dll</HintPath>
     </Reference>
     <Reference Include="ItemChangerDataLoader">
-      <HintPath>$(HollowKnightRefs)/Mods/ItemChangerDataLoader/ItemChangerDataLoader.dll</HintPath>
+      <HintPath>$(HollowKnightRefs)\Mods\ItemChangerDataLoader\ItemChangerDataLoader.dll</HintPath>
     </Reference>
     <Reference Include="ItemSync">
       <HintPath>$(HollowKnightRefs)\Mods\ItemSync\ItemSync.dll</HintPath>

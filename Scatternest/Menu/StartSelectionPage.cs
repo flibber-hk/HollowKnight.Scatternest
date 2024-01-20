@@ -1,12 +1,8 @@
-﻿using ItemChangerDataLoader;
-using MenuChanger;
+﻿using MenuChanger;
 using MenuChanger.Extensions;
 using MenuChanger.MenuElements;
 using MenuChanger.MenuPanels;
-using Modding;
-using RandomizerMod.Menu;
 using RandomizerMod.RC;
-using System.Collections.Generic;
 using System.Linq;
 using static RandomizerMod.Localization;
 
@@ -14,8 +10,6 @@ namespace Scatternest.Menu
 {
     internal class StartSelectionPage
     {
-        private static Dictionary<MenuPage, StartSelectionPage> Instances = new();
-
         private const string Random = "Random";
 
         internal BigButton JumpToSSButton;
@@ -25,22 +19,6 @@ namespace Scatternest.Menu
         internal RadioSwitch ssSwitch;
         internal VerticalItemPanel ssVIP;
         private string[] _starts;
-
-        public static void Hook()
-        {
-            RandomizerMenuAPI.AddStartGameOverride(
-                page => Instances[page] = new(page),
-                (RandoController rc, MenuPage landingPage, out BaseButton button) =>
-                {
-                    button = null;
-                    return Instances.TryGetValue(landingPage, out var instance) && instance.HandleButton(rc.ctx, landingPage, out button);
-                });
-            MenuChangerMod.OnExitMainMenu += Instances.Clear;
-
-            if (ModHooks.GetMod("ICDL Mod") is Mod) ICDLInterop.HookICDL(Instances);
-        }
-
-        public static int ICDLHash;
 
         public void ResetRadioSwitch(RandoModContext ctx)
         {
@@ -71,25 +49,27 @@ namespace Scatternest.Menu
             ssVIP.Reposition();
         }
 
-        internal bool HandleButton(RandoModContext ctx, MenuPage landingPage, out BaseButton button)
+        internal bool HandleButton(RandoModContext ctx, out BaseButton button)
         {
             ResetRadioSwitch(ctx);
-
             button = JumpToSSButton;
-            bool show = _starts is not null;
 
-            if (show) button.Show();
+            bool shouldShowButton = _starts is not null;
+
+            if (shouldShowButton) button.Show();
             else button.Hide();
-            return show;
+
+            return shouldShowButton;
         }
 
         public StartSelectionPage(MenuPage parent)
         {
             SSMenuPage = new MenuPage(Localize("Scatternest Start Selection"), parent);
+
             ssVIP = new(SSMenuPage, new(0, 300), 50f, true);
 
             JumpToSSButton = new(parent, Localize("Start Selection"));
-            JumpToSSButton.AddHideAndShowEvent(SSMenuPage);
+            JumpToSSButton.AddHideAndShowEvent(parent, SSMenuPage);
         }
     }
 }
