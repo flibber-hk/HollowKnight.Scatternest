@@ -56,8 +56,8 @@ namespace Scatternest.Menu
 
             bool shouldShowButton = _starts is not null;
 
-            if (shouldShowButton) button.Show();
-            else button.Hide();
+            if (!shouldShowButton) button.Hide();
+            else button.Show();
 
             return shouldShowButton;
         }
