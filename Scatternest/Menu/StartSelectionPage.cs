@@ -2,7 +2,6 @@
 using MenuChanger.Extensions;
 using MenuChanger.MenuElements;
 using MenuChanger.MenuPanels;
-using RandomizerMod.Menu;
 using RandomizerMod.RC;
 using System.Linq;
 using static RandomizerMod.Localization;
@@ -13,7 +12,6 @@ namespace Scatternest.Menu
     {
         private const string Random = "Random";
 
-        internal static StartSelectionPage Instance { get; private set; }
         internal BigButton JumpToSSButton;
 
         internal MenuPage SSMenuPage;
@@ -22,30 +20,18 @@ namespace Scatternest.Menu
         internal VerticalItemPanel ssVIP;
         private string[] _starts;
 
-
-        public static void OnExitMenu()
-        {
-            Instance = null;
-        }
-
-        public static void Hook()
-        {
-            RandomizerMenuAPI.AddStartGameOverride(ConstructMenu, HandleButton);
-            MenuChangerMod.OnExitMainMenu += OnExitMenu;
-        }
-
-        public void ResetRadioSwitch(RandoController rc)
+        public void ResetRadioSwitch(RandoModContext ctx)
         {
             Scatternest.PrimaryStartName = null;
 
-            if (rc.ctx.StartDef is not MultiRandoStart mrs)
+            if (ctx?.StartDef is not MultiRandoStart mrs)
             {
                 _starts = null;
                 return;
             }
 
             _starts = mrs.InnerDefs.Select(s => s.Name).ToArray();
-            string[]  _buttonNames = _starts.Prepend(Random).ToArray();
+            string[] _buttonNames = _starts.Prepend(Random).ToArray();
 
             ssSwitch = new(SSMenuPage, _buttonNames);
             ssSwitch.Changed += s => Scatternest.PrimaryStartName = s == Random ? null : s;
@@ -63,14 +49,12 @@ namespace Scatternest.Menu
             ssVIP.Reposition();
         }
 
-        private static void ConstructMenu(MenuPage landingPage) => Instance = new(landingPage);
-
-        private static bool HandleButton(RandoController rc, MenuPage landingPage, out BaseButton button)
+        internal bool HandleButton(RandoModContext ctx, out BaseButton button)
         {
-            Instance?.ResetRadioSwitch(rc);
-            button = Instance?.JumpToSSButton;
+            ResetRadioSwitch(ctx);
+            button = JumpToSSButton;
 
-            bool shouldShowButton = Instance?._starts is not null;
+            bool shouldShowButton = _starts is not null;
 
             if (!shouldShowButton) button?.Hide();
             else button?.Show();

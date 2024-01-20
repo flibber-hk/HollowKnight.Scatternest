@@ -9,14 +9,11 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-  
   <PropertyGroup>
     <HollowKnightRefs>..\API</HollowKnightRefs>
     <ExportDir>bin\Publish</ExportDir>
   </PropertyGroup>
-  
   <Import Project="LocalBuildProperties.props" Condition="Exists('LocalBuildProperties.props')" />
-  
   <ItemGroup>
     <None Remove="Resources\**\*.png" />
     <None Remove="Resources\**\*.json" />
@@ -27,13 +24,15 @@
     <EmbeddedResource Include="Resources\**\*.json" />
     <EmbeddedResource Include="Resources\**\*.xml" />
   </ItemGroup>
-  
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>$(HollowKnightRefs)\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="ItemChanger">
       <HintPath>$(HollowKnightRefs)\Mods\ItemChanger\ItemChanger.dll</HintPath>
+    </Reference>
+    <Reference Include="ItemChangerDataLoader">
+      <HintPath>$(HollowKnightRefs)\Mods\ItemChangerDataLoader\ItemChangerDataLoader.dll</HintPath>
     </Reference>
     <Reference Include="ItemSync">
       <HintPath>$(HollowKnightRefs)\Mods\ItemSync\ItemSync.dll</HintPath>
@@ -122,17 +121,14 @@
       <HintPath>$(HollowKnightRefs)\UnityEngine.UIModule.dll</HintPath>
     </Reference>
   </ItemGroup>
-  
   <Target Name="ClearReferenceCopyLocalPaths" AfterTargets="ResolveAssemblyReferences">
     <ItemGroup>
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" />
     </ItemGroup>
   </Target>
-  
   <Target Name="CopyMod" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(HollowKnightRefs)\Mods\$(TargetName)" SkipUnchangedFiles="true" />
   </Target>
-    
   <Target Name="CreateReleaseZip" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
     <RemoveDir Directories="$(ExportDir)/$(TargetName)/" />
     <MakeDir Directories="$(ExportDir)/$(TargetName)/" />
@@ -140,13 +136,11 @@
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ExportDir)/$(TargetName)/" />
     <Copy SourceFiles="..\README.md;$(TargetPath);$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(ExportDir)/$(TargetName)/zip/" />
     <ZipDirectory SourceDirectory="$(ExportDir)/$(TargetName)/zip/" DestinationFile="$(ExportDir)/$(TargetName)/$(TargetName).zip" />
-  
     <GetFileHash Files="$(ExportDir)/$(TargetName)/$(TargetName).zip" Algorithm="SHA256">
-    <Output TaskParameter="Items" ItemName="FilesWithHashes" />
+      <Output TaskParameter="Items" ItemName="FilesWithHashes" />
     </GetFileHash>
     <Message Importance="High" Text="@(FilesWithHashes->'%(Identity): %(FileHash)')" />
     <WriteLinesToFile File="$(ExportDir)/$(TargetName)/metadata/SHA.txt" Lines="@(FilesWithHashes->'%(FileHash)')" Overwrite="true" Encoding="UTF-8" />
-
     <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
       <Output TaskParameter="Assemblies" ItemName="Targets" />
     </GetAssemblyIdentity>
@@ -154,5 +148,5 @@
       <VersionNumber Include="@(Targets->'%(Version)')" />
     </ItemGroup>
     <WriteLinesToFile File="$(ExportDir)/$(TargetName)/metadata/version.txt" Lines="@(VersionNumber)" Overwrite="true" Encoding="UTF-8" />
-  </Target>    
+  </Target>
 </Project>
