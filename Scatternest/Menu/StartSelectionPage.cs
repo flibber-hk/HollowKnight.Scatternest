@@ -2,8 +2,11 @@
 using MenuChanger.Extensions;
 using MenuChanger.MenuElements;
 using MenuChanger.MenuPanels;
+using RandomizerCore.Extensions;
 using RandomizerMod.RC;
 using System.Linq;
+using UnityEngine;
+using Random = System.Random;
 using static RandomizerMod.Localization;
 
 namespace Scatternest.Menu
@@ -19,6 +22,24 @@ namespace Scatternest.Menu
         internal RadioSwitch ssSwitch;
         internal VerticalItemPanel ssVIP;
         private string[] _starts;
+
+        private static Sprite ButtonSprite
+        {
+            get
+            {
+                char[] options = new[] { 'Y', 'B', 'R', 'W' };
+                double[] weights = new[] { 1000d, 100d, 10d, 1d };
+                Random rng = new();
+                // char sel = rng.Next(options, weights);  // Does not work because of a bug in RC right now
+                char sel = options[0];
+
+                return ItemChanger.Internal.SpriteManager.Instance.GetSprite($"ShopIcons.Marker_{sel}");
+            }
+        }
+
+        
+        
+        // { get; } = ItemChanger.Internal.SpriteManager.Instance.GetSprite("Marker_Y");
 
         public void ResetRadioSwitch(RandoModContext ctx)
         {
@@ -68,7 +89,7 @@ namespace Scatternest.Menu
 
             ssVIP = new(SSMenuPage, new(0, 300), 50f, true);
 
-            JumpToSSButton = new(parent, Localize("Start Selection"));
+            JumpToSSButton = new(parent, ButtonSprite, Localize("Start Selection"));
             JumpToSSButton.AddHideAndShowEvent(parent, SSMenuPage);
         }
     }
