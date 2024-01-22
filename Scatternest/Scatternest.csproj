@@ -140,6 +140,7 @@
       <Output TaskParameter="Items" ItemName="FilesWithHashes" />
     </GetFileHash>
     <Message Importance="High" Text="@(FilesWithHashes->'%(Identity): %(FileHash)')" />
+    <Message Importance="High" Text=".NET SDK Version: $(NETCoreSdkVersion)" />
     <WriteLinesToFile File="$(ExportDir)/$(TargetName)/metadata/SHA.txt" Lines="@(FilesWithHashes->'%(FileHash)')" Overwrite="true" Encoding="UTF-8" />
     <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
       <Output TaskParameter="Assemblies" ItemName="Targets" />
