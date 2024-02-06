@@ -63,7 +63,7 @@ namespace Scatternest
             {
                 def = SelectStartsInternal(rng, gs, pm, collectedStartDefs);
             }
-            catch (IndexOutOfRangeException e)
+            catch (Exception e) when (e is IndexOutOfRangeException || e is ArgumentOutOfRangeException)
             {
                 throw new InvalidOperationException("Not enough available starts", e);
             }
