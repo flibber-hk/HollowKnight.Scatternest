@@ -106,7 +106,7 @@ namespace Scatternest
         private StartDef SelectStartsInternal(Random rng, GenerationSettings gs, SettingsPM pm, List<StartDef> collectedStartDefs)
         {
             _logger.LogDebug("Preparing to select starts");
-            _logger.LogDebug($"{RandomizerMenuAPI.GenerateStartLocationDict().Values.Where(x => x.CanBeRandomized(pm))} starts randomizable");
+            _logger.LogDebug($"{RandomizerMenuAPI.GenerateStartLocationDict().Values.Where(x => x.CanBeRandomized(pm)).Count()} starts randomizable");
 
             StartDef def;
             SROwner owner = ReflectionHelper.GetField<SROwner>(typeof(RequestBuilder), "_onSelectStartOwner");

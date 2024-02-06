@@ -1,23 +1,24 @@
 ﻿using RandomizerCore.Logic;
+using RandomizerCore.Logic.StateLogic;
 using RandomizerMod.RC;
 using RandomizerMod.RC.LogicInts;
 
 namespace Scatternest
 {
+    // Copy of StartLocationDelta, but checks for "gs.Start == ?" replaced with "gs.Start.Contains(|?|)"
     public class MultiStartLocationDelta : StartLocationDelta
     {
         public MultiStartLocationDelta(StartLocationDelta template, LogicManager lm) : base(template.Name, lm, template.Location) { }
 
-        public override int GetValue(object sender, ProgressionManager pm)
+        public override StateUnion GetInputState(object sender, ProgressionManager pm)
         {
             string settingsLoc = ((RandoModContext)pm.ctx).GenerationSettings.StartLocationSettings.StartLocation;
 
-            if (settingsLoc.Contains($"|{this.Location}|"))
-            {
-                return TRUE;
-            }
-
-            return base.GetValue(sender, pm);
+            return settingsLoc.Contains($"|{this.Location}|")
+                ? StartStateTerm is not null
+                ? pm.GetState(StartStateTerm)
+                : StateUnion.Empty
+                : null;
         }
     }
 
