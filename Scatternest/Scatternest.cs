@@ -123,6 +123,8 @@ namespace Scatternest
         {
             if (!SET.Enabled) return;
 
+            ItemChangerMod.Modules.Add<StartChangesProxyModule>();
+
             ScatternestInteropModule mod = ItemChangerMod.Modules.Add<ScatternestInteropModule>();
             mod.Settings = SET.Clone();
 
@@ -130,6 +132,9 @@ namespace Scatternest
             {
                 MultiItemchangerStart.Instance?.SetPrimaryIndex(PrimaryStartName);
             }
+
+            // Start changes taken from RandomizerMod/IC/Export.cs
+            // https://github.com/homothetyhk/RandomizerMod/blob/e061177fd31332572b5162fc9a767271e71f9291/RandomizerMod/IC/Export.cs#L91
 
             if (rc.gs.StartLocationSettings.StartLocation.Contains("|Hive|"))
             {
